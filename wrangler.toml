@@ -1,0 +1,10 @@
+# Cloudflare Pages 설정 (선택) — 대시보드에서 바인딩을 설정하면 이 파일은 없어도 됩니다.
+name = "seuseuro-lab"
+compatibility_date = "2025-06-01"
+pages_build_output_dir = "."
+
+# D1 바인딩: 대시보드에서 D1 생성 후 database_id 를 채우세요.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "seuseuro-db"
+# database_id = "여기에-D1-database-id"
