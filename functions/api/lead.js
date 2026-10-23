@@ -4,6 +4,18 @@
  * D1 바인딩 이름: DB  (Cloudflare Pages → Settings → Functions → D1 database bindings)
  * DB가 아직 연결되지 않았으면 503을 돌려주고, 프런트는 이메일 안내로 폴백합니다.
  */
+let ready = false;
+async function ensure(env) {
+  // schema.sql을 실행하지 않았더라도 첫 접수 때 테이블을 만듭니다
+  if (ready) return;
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    service TEXT NOT NULL DEFAULT 'contact', kind TEXT, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL,
+    region TEXT, message TEXT, page TEXT, ua TEXT, ip TEXT, payload TEXT,
+    status TEXT NOT NULL DEFAULT 'new', note TEXT)`).run();
+  ready = true;
+}
+
 export async function onRequestPost({ request, env }) {
   const json = (body, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
@@ -36,6 +48,7 @@ export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ ok: false, error: 'no-db' }, 503);
 
   try {
+    await ensure(env);
     await env.DB.prepare(
       `INSERT INTO leads (service, kind, name, phone, email, region, message, page, ua, ip, payload)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)`

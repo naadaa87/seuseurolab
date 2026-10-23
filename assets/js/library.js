@@ -7,7 +7,15 @@
   function qa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
   var GRADE = { '◎': ['direct', '셀프 가능'], '○': ['cond', '조건부 가능'], '△': ['part', '부분 가능'], '×': ['verify', '전문업체 필수'] };
   function gbadge(g) { var x = GRADE[g] || ['part', g]; return '<span class="badge badge-' + x[0] + '">' + g + ' ' + x[1] + '</span>'; }
-  function linkBtns(o, pro) {
+  function qOf(u) {
+    if (!u) return '';
+    var m = String(u).match(/[?&](?:q|query)=([^&]*)/); if (!m) return '';
+    try { return decodeURIComponent(m[1].replace(/\+/g, ' ')).replace(/\s+/g, ' ').trim(); } catch (e) { return m[1]; }
+  }
+  function linkBtns(o, pro, name, note) {
+    var q = qOf(o.l3) || (pro === 'tools' ? qOf(o.l2) : '') || qOf(o.l1);
+    var proLink = (o.l4 && o.l4n && o.l4n !== '-' && ['다나와', '오늘의집', '쿠팡'].indexOf(o.l4n) < 0) ? { n: o.l4n, u: o.l4 } : null;
+    if (q && S.buyLinks) return S.buyLinks(q, { pro: proLink }) + (name && S.addBtn ? S.addBtn(q, name, note || '') : '');
     var a = [];
     if (o.l1) a.push('<a href="' + esc(o.l1) + '" target="_blank" rel="noopener nofollow">다나와</a>');
     if (o.l2) a.push('<a href="' + esc(o.l2) + '" target="_blank" rel="noopener nofollow">' + (pro === 'tools' ? '쿠팡' : '오늘의집') + '</a>');
@@ -65,7 +73,7 @@
           (r.time && r.time !== '-' ? '<dt>소요 시간</dt><dd>' + esc(r.time) + '</dd>' : '') +
           (r.review && r.review !== '-' ? '<dt>후기 근거</dt><dd>' + esc(r.review) + '</dd>' : '') +
           (r.caution && r.caution !== '-' ? '<dt>주의·법규</dt><dd><strong style="color:var(--stop)">' + esc(r.caution) + '</strong></dd>' : '') +
-          '</dl>' + linkBtns(r) + (srcs ? '<p class="text-small text-muted mt-16" style="margin-bottom:0">출처 · ' + srcs + '</p>' : '') + '</div></div>';
+          '</dl>' + linkBtns(r, null, r.name, r.cat) + (srcs ? '<p class="text-small text-muted mt-16" style="margin-bottom:0">출처 · ' + srcs + '</p>' : '') + '</div></div>';
       });
       catRoot.innerHTML = html; accordion(catRoot, '.c-item');
       if (location.hash) { var el = q(location.hash, catRoot); if (el) { el.classList.add('is-open'); el.scrollIntoView({ block: 'center' }); } }
@@ -89,7 +97,7 @@
       html += '<h3 class="grp-title">' + g + ' <span class="text-muted text-small" style="font-weight:400">' + items.length + '</span></h3><p class="text-muted text-small">' + esc(gdesc[g] || '') + '</p>';
       html += '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>공구</th><th>용도·공정</th><th>참고 가격</th><th>추천 브랜드</th><th>선택 포인트</th><th>구매</th></tr></thead><tbody>';
       items.forEach(function (t) {
-        html += '<tr><td><strong>' + esc(t.name) + '</strong></td><td>' + esc(t.use) + '</td><td>' + esc(t.price) + '</td><td>' + esc(t.brand) + '</td><td class="text-small">' + esc(t.tip) + '</td><td>' + linkBtns({ l1: t.l1, l2: t.l2 }, 'tools') + '</td></tr>';
+        html += '<tr><td><strong>' + esc(t.name) + '</strong></td><td>' + esc(t.use) + '</td><td>' + esc(t.price) + '</td><td>' + esc(t.brand) + '</td><td class="text-small">' + esc(t.tip) + '</td><td>' + linkBtns({ l1: t.l1, l2: t.l2 }, 'tools', t.name, '공구 · ' + t.grp) + '</td></tr>';
       });
       html += '</tbody></table></div>';
     });
@@ -109,7 +117,7 @@
       var html = '', last = '';
       list.forEach(function (m) {
         if (m.cat !== last) { if (last) html += '</tbody></table></div>'; html += '<h3 class="grp-title">' + esc(m.cat) + '</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>자재·부자재</th><th>규격·단위</th><th>용도</th><th>참고 가격</th><th>추천</th><th>포인트</th><th>구매</th></tr></thead><tbody>'; last = m.cat; }
-        html += '<tr><td><strong>' + esc(m.name) + '</strong></td><td>' + esc(m.spec) + '</td><td>' + esc(m.use) + '</td><td>' + esc(m.price) + '</td><td>' + esc(m.brand) + '</td><td class="text-small">' + esc(m.tip) + '</td><td>' + linkBtns(m) + '</td></tr>';
+        html += '<tr><td><strong>' + esc(m.name) + '</strong></td><td>' + esc(m.spec) + '</td><td>' + esc(m.use) + '</td><td>' + esc(m.price) + '</td><td>' + esc(m.brand) + '</td><td class="text-small">' + esc(m.tip) + '</td><td>' + linkBtns(m, null, m.name, m.cat) + '</td></tr>';
       });
       if (last) html += '</tbody></table></div>';
       matRoot.innerHTML = html || '<div class="box"><p>조건에 맞는 자재가 없습니다.</p></div>';

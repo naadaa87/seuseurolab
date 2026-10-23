@@ -4,6 +4,7 @@
   'use strict';
   var P = window.SSR.processes, IND = window.SSR.industry, BL = window.SSR.badgeLabel, PL = window.SSR.phaseLabel;
   var byId = {}; P.forEach(function (p) { byId[p.id] = p; });
+  var PROC_KIT = {'paint':['paint','셀프 도장 키트'],'decotile':['decotile','비접착 데코타일 바닥 키트'],'film':['film','인테리어 필름 리폼 키트'],'lamp':['rail','레일조명 키트'],'graphic':['sign','실내 사인·연출 키트'],'furniture':['display','진열·수납 키트'],'demo-light':['restore','원상복구 셀프 키트'],'waste':['restore','원상복구 셀프 키트'],'carpentry':['starter','입문 공구 필수 세트']};
 
   var steps = Array.prototype.slice.call(document.querySelectorAll('.wiz-step'));
   var total = steps.length - 1; // 마지막은 결과
@@ -148,7 +149,7 @@
 
     html += '<div class="res-block"><h3>공정 순서와 판정</h3><ol class="seq">';
     r.list.forEach(function (p, i) {
-      html += '<li><span class="ph">' + (i + 1) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(PL[p.phase]) + ' · ' + esc(p.reason || p.note) + (p.kw ? ' · <a href="catalog.html?q=' + encodeURIComponent(p.kw) + '" style="color:var(--orange);font-weight:600">도구·자재 보기</a>' : '') + '</small></span><span class="badge badge-' + p.finalBadge + '">' + BL[p.finalBadge] + '</span></li>';
+      html += '<li><span class="ph">' + (i + 1) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(PL[p.phase]) + ' · ' + esc(p.reason || p.note) + (p.finalBadge === 'verify' || p.badge === 'verify' ? ' · <a href="estimate.html" style="color:var(--orange);font-weight:600">업체 견적 검증</a>' : PROC_KIT[p.id] ? ' · <a href="kit-' + PROC_KIT[p.id][0] + '.html" style="color:var(--orange);font-weight:600">' + PROC_KIT[p.id][1] + '</a>' : p.kw ? ' · <a href="catalog.html?q=' + encodeURIComponent(p.kw) + '" style="color:var(--orange);font-weight:600">도구·자재 보기</a>' : '') + '</small></span><span class="badge badge-' + p.finalBadge + '">' + BL[p.finalBadge] + '</span></li>';
     });
     html += '</ol></div>';
 
@@ -158,6 +159,14 @@
       html += '</ul></div>';
     }
 
+    var kits = [], seenK = {};
+    r.list.forEach(function (p) { var k = PROC_KIT[p.id]; if (k && p.finalBadge !== 'verify' && !seenK[k[0]]) { seenK[k[0]] = 1; kits.push(k); } });
+    if (r.counts.direct + r.counts.assist > 0 && !seenK.starter) kits.push(PROC_KIT.carpentry);
+    if (kits.length) {
+      html += '<div class="res-block"><h3>이 현장에 맞는 스스로몰 키트</h3><p>직접 하거나 반셀프로 할 공정에 필요한 도구·자재를 키트로 묶었습니다. 판매처 4곳에서 비교하고, 구매 목록에 담아 두세요. 등록업체 공정의 자재는 몰에서 팔지 않습니다.</p><div class="kit-nav">' +
+        kits.map(function (k) { return '<a href="kit-' + k[0] + '.html">' + esc(k[1]) + '</a>'; }).join('') + '<a href="kit-open.html">오픈 직전 점검 키트</a><a href="mall.html">스스로몰 전체</a></div></div>';
+    }
+
     html += '<div class="res-block"><h3>행정·동의 체크리스트</h3><ul class="chk">';
     r.admin.forEach(function (s) { html += '<li>' + esc(s) + '</li>'; });
     html += '</ul></div>';
@@ -165,7 +174,7 @@
     html += '<div class="res-block"><h3>다음 단계</h3>' +
       '<div class="grid grid-3">' +
       '<div class="box box-accent"><h3>실행 리포트 받기</h3><p>공정 지도, BOM(구매 목록), 비용 3안, 일정 3안, 행정 체크, Hold Point까지 8개 출력. 사람이 검토한 뒤 보내드립니다.</p><p class="mt-16"><a class="btn btn-primary" href="#report">리포트 신청</a></p></div>' +
-      '<div class="box"><h3>도구·자재·예산 준비</h3><p>판정된 공정별 도구와 자재를 <a href="catalog.html">자료실</a>에서 확인하고, <a href="calc.html">계산기</a>로 수량을 뽑은 뒤 <a href="budget.html">예산표</a>에 넣어 보세요.</p><p class="mt-16"><a class="btn btn-outline" href="catalog.html">자료실</a> <a class="btn btn-outline" href="budget.html">예산표</a></p></div>' +
+      '<div class="box"><h3>도구·자재·예산 준비</h3><p>판정된 공정의 도구와 자재는 <a href="mall.html">스스로몰</a> 키트로 비교하고, <a href="calc.html">계산기</a>로 수량을 뽑은 뒤 <a href="budget.html">예산표</a>에 넣어 보세요.</p><p class="mt-16"><a class="btn btn-outline" href="mall.html">스스로몰</a> <a class="btn btn-outline" href="budget.html">예산표</a></p></div>' +
       '<div class="box"><h3>결과 저장</h3><p>이 판정을 텍스트로 복사해 두거나, 공정 판정 가이드에서 각 공정의 근거를 확인하세요.</p><p class="mt-16"><button type="button" class="btn btn-outline" id="copyResult">결과 복사</button> <a class="btn btn-outline" href="guide.html">판정 가이드</a></p></div>' +
       '</div></div>';
 

@@ -20,7 +20,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=20261024">
+
 <meta name="robots" content="noindex,nofollow">
 </head>
 <body>
@@ -28,17 +29,50 @@
   <div class="wrap header-inner">
     <a class="brand" href="index.html" aria-label="스스로연구소 홈"><svg viewBox="0 0 132 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="#0D1B2A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="1.5" stroke-dasharray="4 4" opacity=".5"><line x1="18" y1="6" x2="18" y2="104"/><line x1="114" y1="6" x2="114" y2="104"/><line x1="2" y1="96" x2="130" y2="96"/></g><path d="M18 96V52L50 30h64v66"/><path d="M18 74h46M64 74v22M42 74v22"/><rect x="64" y="44" width="30" height="24"/><rect x="94" y="76" width="16" height="20" fill="#FF6A00" stroke="none"/></svg><span class="brand-text"><span class="brand-kr">스스로연구소</span><span class="brand-en">SEUSEURO LAB</span></span></a>
     <button class="nav-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span></button>
-    <nav class="nav" id="nav"><a href="sigongso.html">시공소</a><a href="wonsang.html">원상복구</a><a href="changup.html">창업</a><a href="gonggan.html">공간</a><span class="nav-sep"></span><a href="guide.html">공정 판정 가이드</a><a href="resources.html">자료실</a><a href="pricing.html">상품·가격</a><a href="about.html">연구소 소개</a><a href="contact.html">문의</a><a class="btn btn-primary btn-sm" href="diagnosis.html">7분 무료 진단</a></nav>
+    <nav class="nav" id="nav"><a href="sigongso.html">시공소</a><a href="wonsang.html">원상복구</a><a href="changup.html">창업</a><a href="gonggan.html">공간</a><span class="nav-sep"></span><a href="mall.html" class="nav-mall">스스로몰</a><a href="resources.html">자료실</a><a href="guide.html">판정 가이드</a><a href="pricing.html">상품·가격</a><a href="about.html">소개</a><a href="contact.html">문의</a><a class="btn btn-primary btn-sm" href="diagnosis.html">7분 무료 진단</a></nav>
   </div>
 </header>
 <main>
 
-<section class="page-hero"><div class="wrap"><div class="kicker">관리자</div><h1>접수 내역 다운로드</h1><p class="lead">Cloudflare 환경변수 ADMIN_KEY 에 설정한 값을 입력하면 접수된 리드를 CSV로 내려받습니다. 이 페이지는 검색에 노출되지 않습니다.</p></div></section>
-<section class="section"><div class="wrap" style="max-width:560px">
-  <div class="box">
-    <div class="field"><label for="k">관리 키</label><input type="text" id="k" placeholder="ADMIN_KEY 값"></div>
-    <div class="mt-16"><button class="btn btn-navy" type="button" id="dl">CSV 다운로드</button> <a class="btn btn-outline" href="api/health" target="_blank" rel="noopener">연결 상태 확인</a></div>
-    <p class="text-small text-muted mt-16">CSV는 엑셀에서 바로 열립니다. 상태(status)·메모(note)는 D1 콘솔에서 수정하거나, 이후 관리 화면이 생기면 거기서 관리합니다.</p>
+<section class="page-hero"><div class="wrap"><div class="kicker">관리자</div><h1>스스로연구소 관리</h1><p class="lead">스스로몰 제휴 링크 등록, 구매 링크 클릭 통계, 상담 접수 내역 다운로드. 이 페이지는 검색에 노출되지 않습니다.</p></div></section>
+<section class="section"><div class="wrap">
+  <div class="box mb-24">
+    <div class="adm-bar" style="margin-bottom:6px"><label for="admKey" style="font-weight:600;color:var(--navy)">관리 키</label><input type="password" id="admKey" placeholder="Cloudflare 환경변수 ADMIN_KEY 값" style="min-width:280px" autocomplete="off"><button type="button" class="btn btn-navy btn-sm" id="admKeySave">확인</button><a class="btn btn-outline btn-sm" href="api/health" target="_blank" rel="noopener">연결 상태</a></div>
+    <p class="text-small mb-0" id="admState"></p>
+    <p class="text-small text-muted mb-0">관리 키는 이 탭에만 기억되고, 탭을 닫으면 지워집니다.</p>
+  </div>
+  <div class="adm-tabs" role="tablist"><button type="button" data-tab="links" class="is-on" aria-selected="true">스스로몰 링크</button><button type="button" data-tab="stats" aria-selected="false">클릭 통계</button><button type="button" data-tab="leads" aria-selected="false">접수 내역</button></div>
+
+  <div class="adm-pane" id="pane-links">
+    <div class="grid grid-2 mb-24">
+      <div class="box box-accent"><h3>링크 등록 순서</h3><ol class="mt-16 text-small" style="margin-bottom:0"><li>쿠팡 파트너스에 가입하고 사이트(이 홈페이지 주소)를 채널로 등록합니다.</li><li>아래 표에서 <strong>검색 URL 복사</strong> → 쿠팡 파트너스 <strong>링크 생성</strong>에 붙여넣기 → 만들어진 <code>link.coupang.com</code> 주소를 칸에 붙여넣습니다.</li><li><strong>변경 저장</strong>을 누르면 몰·키트·자료실의 같은 검색어 버튼에 바로 적용되고 '제휴' 표시가 붙습니다.</li><li>최종 승인 뒤 API 키를 받으면 <strong>쿠팡 API로 일괄 변환</strong>으로 한 번에 처리할 수 있습니다.</li></ol></div>
+      <div class="box"><h3>무엇부터 만들까</h3><p class="text-small">범위를 '스스로몰 상품'으로 두고 정렬을 '클릭 많은 순'으로 바꾸면, 실제로 많이 누르는 링크부터 보입니다. 키트에 들어간 상품이 위쪽에 먼저 정렬됩니다. 네이버쇼핑·오늘의집 제휴 링크가 생기면 판매처를 바꿔 같은 방식으로 등록합니다.</p></div>
+    </div>
+    <div class="adm-bar">
+      <select id="fPlat" aria-label="판매처"><option value="coupang">쿠팡</option><option value="naver">네이버쇼핑</option><option value="ohou">오늘의집</option></select>
+      <select id="fScope" aria-label="범위"><option value="mall">스스로몰 상품</option><option value="all">자료실 포함 전체</option></select>
+      <select id="fState" aria-label="상태"><option value="all">전체</option><option value="none">미등록만</option><option value="has">등록됨만</option></select>
+      <select id="fSort" aria-label="정렬"><option value="order">키트 상품 먼저</option><option value="clicks">클릭 많은 순</option><option value="name">이름순</option></select>
+      <input type="search" id="fText" placeholder="검색어·상품명" aria-label="검색">
+      <span class="count" id="linkCount"></span>
+    </div>
+    <div class="adm-bar"><button type="button" class="btn btn-primary btn-sm" id="saveDirty">변경 저장</button><button type="button" class="btn btn-navy btn-sm" id="apiConvert">쿠팡 API로 미등록 일괄 변환</button><button type="button" class="btn btn-outline btn-sm" id="exportLinks">링크 파일 내보내기</button></div>
+    <pre class="adm-log" id="admLog" hidden></pre>
+    <div class="tbl-wrap"><table class="tbl adm-tbl"><thead><tr><th>검색어 · 쓰이는 곳</th><th class="c">클릭(30일)</th><th>제휴 링크</th><th>작업</th></tr></thead><tbody id="linkBody"></tbody></table></div>
+    <div class="box mt-32"><h3>여러 개 한 번에 붙여넣기</h3><p class="text-small">한 줄에 <code>검색어, 링크</code> 형식으로 붙여넣습니다. 탭으로 구분해도 됩니다. 판매처는 위에서 고른 것이 적용되고, <code>naver:검색어, 링크</code>처럼 앞에 판매처를 적으면 그 판매처로 저장합니다. 링크 칸을 비워 저장하면 등록이 해제됩니다.</p><div class="field"><textarea id="bulkText" placeholder="비접착식 데코타일, https://link.coupang.com/a/xxxxx&#10;순앤수100 4L, https://link.coupang.com/a/yyyyy"></textarea></div><p class="mt-16 mb-0"><button type="button" class="btn btn-outline btn-sm" id="bulkSave">붙여넣은 목록 저장</button></p></div>
+  </div>
+
+  <div class="adm-pane" id="pane-stats" hidden>
+    <p id="statSum" style="font-weight:600;color:var(--navy)"></p>
+    <div class="grid grid-2" style="grid-template-columns:2fr 1fr;align-items:start">
+      <div class="tbl-wrap"><table class="tbl adm-tbl"><thead><tr><th class="c">#</th><th>검색어</th><th>판매처</th><th class="c">클릭</th><th class="c">제휴</th><th>링크</th></tr></thead><tbody id="statTop"></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>페이지</th><th class="c">클릭</th></tr></thead><tbody id="statPages"></tbody></table></div>
+    </div>
+    <p class="text-small text-muted mt-16">클릭은 이 사이트에서 구매 버튼을 누른 횟수입니다. 실제 구매와 수수료는 쿠팡 파트너스 등 각 제휴 프로그램의 리포트에서 확인합니다. 클릭 기록에는 개인 식별 정보가 없습니다.</p>
+  </div>
+
+  <div class="adm-pane" id="pane-leads" hidden>
+    <div class="box" style="max-width:560px"><h3>상담·신청 접수 내역</h3><p class="text-small">문의, 실행 리포트 신청, 견적서 검증 신청을 CSV로 내려받습니다. 엑셀에서 바로 열립니다. 상태(status)·메모(note)는 D1 콘솔에서 수정하거나, 이후 관리 화면이 생기면 거기서 관리합니다.</p><p class="mt-16 mb-0"><button type="button" class="btn btn-navy" id="dlLeads">CSV 다운로드</button></p></div>
   </div>
 </div></section>
 
@@ -49,8 +83,9 @@
       <div class="footer-brand">
         <a class="brand" href="index.html"><svg viewBox="0 0 132 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="#0D1B2A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="1.5" stroke-dasharray="4 4" opacity=".5"><line x1="18" y1="6" x2="18" y2="104"/><line x1="114" y1="6" x2="114" y2="104"/><line x1="2" y1="96" x2="130" y2="96"/></g><path d="M18 96V52L50 30h64v66"/><path d="M18 74h46M64 74v22M42 74v22"/><rect x="64" y="44" width="30" height="24"/><rect x="94" y="76" width="16" height="20" fill="#FF6A00" stroke="none"/></svg><span class="brand-text"><span class="brand-kr">스스로연구소</span><span class="brand-en">SEUSEURO LAB</span></span></a>
         <p>상가·매장을 고치려는 분에게 직접 할 공정, 맡길 공정, 꼭 확인할 공정을 나눠 드립니다. 상업공간 셀프시공을 핵심으로, 점포의 입점부터 퇴거·재임대까지 함께합니다.</p>
+        <p class="text-small">스스로몰의 일부 구매 링크는 쿠팡 파트너스 등 제휴 링크이며, 이를 통해 구매하면 판매처로부터 수수료를 받습니다. 구매 가격은 같습니다.</p>
       </div>
-      <div><h4>서비스</h4><ul><li><a href="sigongso.html">스스로시공소</a></li><li><a href="wonsang.html">스스로원상복구</a></li><li><a href="changup.html">스스로창업</a></li><li><a href="gonggan.html">스스로공간</a></li></ul></div>
+      <div><h4>서비스</h4><ul><li><a href="sigongso.html">스스로시공소</a></li><li><a href="wonsang.html">스스로원상복구</a></li><li><a href="changup.html">스스로창업</a></li><li><a href="gonggan.html">스스로공간</a></li><li><a href="mall.html">스스로몰</a> · <a href="kit-starter.html">공정별 키트</a></li></ul></div>
       <div><h4>도구·자료실</h4><ul><li><a href="diagnosis.html">7분 공사비 절감 진단</a></li><li><a href="estimate.html">견적서 검증 신청</a></li><li><a href="guide.html">공정 판정 가이드</a></li><li><a href="catalog.html">셀프시공 315 항목</a></li><li><a href="tools.html">도구</a> · <a href="materials.html">자재</a> · <a href="stores.html">구매처</a></li><li><a href="calc.html">산출 계산기</a> · <a href="budget.html">예산표</a></li><li><a href="checklist.html">공정·체크리스트</a></li></ul></div>
       <div><h4>연구소</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의·상담</a></li><li><a href="mailto:spaceblank0100@gmail.com">spaceblank0100@gmail.com</a></li><li><a href="tel:01023849580">010-2384-9580</a></li></ul></div>
     </div>
@@ -61,8 +96,7 @@
   </div>
 </footer>
 <script>window.SSR=window.SSR||{};window.SSR.contactEmail="spaceblank0100@gmail.com";</script>
-<script src="assets/js/main.js"></script>
-
-<script>document.getElementById("dl").addEventListener("click",function(){var k=document.getElementById("k").value.trim();if(!k){alert("관리 키를 입력하세요");return;}location.href="/api/leads-export?key="+encodeURIComponent(k);});</script>
+<script src="assets/js/main.js?v=20261024"></script>
+<script src="assets/js/catalog-data.js?v=20261024"></script><script src="assets/js/mall-data.js?v=20261024"></script><script src="assets/js/mall-links.js?v=20261024"></script><script src="assets/js/aff.js?v=20261024"></script><script src="assets/js/admin.js?v=20261024"></script>
 </body>
 </html>
