@@ -148,7 +148,7 @@
 
     html += '<div class="res-block"><h3>공정 순서와 판정</h3><ol class="seq">';
     r.list.forEach(function (p, i) {
-      html += '<li><span class="ph">' + (i + 1) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(PL[p.phase]) + ' · ' + esc(p.reason || p.note) + '</small></span><span class="badge badge-' + p.finalBadge + '">' + BL[p.finalBadge] + '</span></li>';
+      html += '<li><span class="ph">' + (i + 1) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(PL[p.phase]) + ' · ' + esc(p.reason || p.note) + (p.kw ? ' · <a href="catalog.html?q=' + encodeURIComponent(p.kw) + '" style="color:var(--orange);font-weight:600">도구·자재 보기</a>' : '') + '</small></span><span class="badge badge-' + p.finalBadge + '">' + BL[p.finalBadge] + '</span></li>';
     });
     html += '</ol></div>';
 
@@ -163,8 +163,9 @@
     html += '</ul></div>';
 
     html += '<div class="res-block"><h3>다음 단계</h3>' +
-      '<div class="grid grid-2">' +
+      '<div class="grid grid-3">' +
       '<div class="box box-accent"><h3>실행 리포트 받기</h3><p>공정 지도, BOM(구매 목록), 비용 3안, 일정 3안, 행정 체크, Hold Point까지 8개 출력. 사람이 검토한 뒤 보내드립니다.</p><p class="mt-16"><a class="btn btn-primary" href="#report">리포트 신청</a></p></div>' +
+      '<div class="box"><h3>도구·자재·예산 준비</h3><p>판정된 공정별 도구와 자재를 <a href="catalog.html">자료실</a>에서 확인하고, <a href="calc.html">계산기</a>로 수량을 뽑은 뒤 <a href="budget.html">예산표</a>에 넣어 보세요.</p><p class="mt-16"><a class="btn btn-outline" href="catalog.html">자료실</a> <a class="btn btn-outline" href="budget.html">예산표</a></p></div>' +
       '<div class="box"><h3>결과 저장</h3><p>이 판정을 텍스트로 복사해 두거나, 공정 판정 가이드에서 각 공정의 근거를 확인하세요.</p><p class="mt-16"><button type="button" class="btn btn-outline" id="copyResult">결과 복사</button> <a class="btn btn-outline" href="guide.html">판정 가이드</a></p></div>' +
       '</div></div>';
 

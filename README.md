@@ -15,7 +15,15 @@
 ├── wonsang.html          스스로원상복구 (복구 범위 간이진단 포함)
 ├── changup.html          스스로창업
 ├── gonggan.html          스스로공간
-├── guide.html            공정 판정 가이드 (28개 공정 · 5축)
+├── guide.html            공정 판정 가이드 (27개 공정 · 5축) + 법규·안전 체크
+├── resources.html        셀프시공 자료실 허브
+├── catalog.html          셀프시공 총정리 315 항목 (필터·검색·구매 링크)
+├── tools.html            도구 총정리 46
+├── materials.html        자재·부자재 총정리 132
+├── stores.html           구매처 디렉토리 92
+├── calc.html             산출 계산기 11 + 공식 18 + 설계 기준값 45
+├── budget.html           예산 템플릿 (브라우저 저장)
+├── checklist.html        공정 순서 17 · 오픈 체크리스트 · 행정·개통 · 검수
 ├── estimate.html         견적서 검증 신청
 ├── pricing.html          상품·가격
 ├── about.html            연구소 소개
@@ -25,9 +33,12 @@
 ├── 404.html
 ├── assets/
 │   ├── css/style.css     디자인 시스템 (브랜드 컬러 #0D1B2A / #FF6A00)
-│   ├── js/data.js        공정 판정 데이터 (28개 공정 · L/S/K/R/E · 업종별 세트)
+│   ├── js/data.js        공정 판정 데이터 (27개 공정 · L/S/K/R/E · 업종별 세트)
 │   ├── js/diagnosis.js   진단 위저드 + 규칙 엔진
 │   ├── js/guide.js       가이드 필터·검색
+│   ├── js/catalog-data.js  315개 항목 데이터 (엑셀 '셀프시공총정리'·'출처' 시트에서 생성)
+│   ├── js/library-data.js  도구·자재·구매처·법규·체크리스트·기준값·공식 데이터
+│   ├── js/library.js     자료실 렌더링·계산기·예산표·체크리스트
 │   ├── js/main.js        공통 (내비, 폼 제출, 폴백)
 │   └── img/              로고(SVG), 최적화된 사진
 ├── functions/api/        Cloudflare Pages Functions (서버 API)
@@ -97,6 +108,7 @@ GitHub에서 파일을 열어 연필 아이콘으로 수정 → Commit 하면 Cl
 | 연락처 | footer, contact.html, privacy.html, terms.html, `main.js`(SSR.contactEmail) | 이메일·전화 확인 |
 | 가격 | pricing.html, diagnosis.html | 실험 범위 → 확정가로 |
 | 공정 판정표 | `assets/js/data.js` | 법무 검토 후 L/S/K/R/E 값·문구 갱신. guide.html 의 "최종 갱신" 날짜도 함께 |
+| 자료실 데이터 | `assets/js/catalog-data.js`, `library-data.js` | 엑셀(셀프시공 총정리)을 고치면 이 두 파일을 다시 생성해야 합니다. 요청하시면 변환해 드립니다. 가격은 2026.09 조사 시점 참고값 |
 
 > 찾아바꾸기는 GitHub에서 파일마다 편집해도 되고, 로컬에서 텍스트 편집기(VS Code 등)의 "폴더 전체 바꾸기"를 쓰면 한 번에 됩니다.
 

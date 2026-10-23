@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://seuseuro.pages.dev/sitemap.xml
 Disallow: /admin
+
+Sitemap: https://seuseuro.pages.dev/sitemap.xml
