@@ -128,7 +128,7 @@ GitHub에서 파일을 열어 연필 아이콘으로 수정 → Commit 하면 Cl
 | 항목 | 위치 | 내용 |
 |---|---|---|
 | 사업자 정보 | 모든 `.html` 하단 footer | `[등록번호 입력]`, `[신고번호 입력]`, `[사업장 주소 입력]` 세 곳을 실제 값으로 |
-| 사이트 주소 | 모든 `.html`의 `<link rel="canonical">`, `og:image`, `sitemap.xml`, `robots.txt` | `https://seuseuro.pages.dev` → 실제 도메인으로 찾아바꾸기 |
+| 사이트 주소 | 모든 `.html`의 `<link rel="canonical">`, `og:image`, `sitemap.xml`, `robots.txt` | 반영 완료: `https://seuseurolab.com` (도메인을 바꿀 때만 다시 찾아바꾸기) |
 | 연락처 | footer, contact.html, privacy.html, terms.html, `main.js`(SSR.contactEmail) | 이메일·전화 확인 |
 | 가격 | pricing.html, diagnosis.html | 실험 범위 → 확정가로 |
 | 공정 판정표 | `assets/js/data.js` | 법무 검토 후 L/S/K/R/E 값·문구 갱신. guide.html 의 "최종 갱신" 날짜도 함께 |

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 
-Sitemap: https://seuseuro.pages.dev/sitemap.xml
+Sitemap: https://seuseurolab.com/sitemap.xml
