@@ -3,8 +3,10 @@ name = "seuseuro-lab"
 compatibility_date = "2025-06-01"
 pages_build_output_dir = "."
 
-# D1 바인딩: 대시보드에서 D1 생성 후 database_id 를 채우세요.
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "seuseuro-db"
-# database_id = "여기에-D1-database-id"
+# D1 바인딩: 상담 접수(leads)·제휴 링크(aff_links)·클릭 기록(aff_clicks)
+#   seuseuro-db 생성·표 만들기 완료 (2026.11.17)
+# 이 파일이 있으면 Cloudflare 대시보드에서는 바인딩을 추가할 수 없습니다. 여기에서 관리하세요.
+[[d1_databases]]
+binding = "DB"
+database_name = "seuseuro-db"
+database_id = "b7c4e48a-9e8e-4b20-8e4f-b1d3c91e5aab"
