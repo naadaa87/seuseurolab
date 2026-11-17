@@ -1,41 +1,68 @@
-/* 스스로몰 · 구매 링크·제휴 링크·구매 목록 공통 스크립트
-   - 구매 버튼은 기본적으로 판매처 검색 결과로 열립니다.
-   - 관리자가 등록한 제휴 링크(쿠팡 파트너스 등)가 있으면 그 링크로 바꾸고 '제휴' 표시를 붙입니다.
-   - 배너·위젯·자동 이동은 쓰지 않습니다. 사용자가 누른 링크만 판매처로 이동합니다.
-   - 클릭 기록에는 개인 식별 정보를 남기지 않습니다(키워드·판매처·페이지 경로·시각만). */
+/* 스스로몰 · 쿠팡 구매 링크·대표 상품 사진·구매 목록 공통 스크립트
+   - 구매 버튼은 쿠팡만 씁니다(쿠팡 파트너스 제휴 링크). 다른 판매처 버튼은 두지 않습니다.
+   - 스스로몰 품목에는 쿠팡에서 후기가 많은 대표 상품을 하나씩 골라 사진과 상품 링크를 붙입니다(mall-picks.js).
+   - 관리자가 등록한 제휴 링크가 있으면 그 링크로 바꾸고 '제휴' 표시를 붙입니다.
+   - 배너·위젯·자동 이동은 쓰지 않습니다. 사용자가 누른 링크만 쿠팡으로 이동합니다.
+   - 상품 사진은 쿠팡 이미지 서버에서 바로 불러오되 리퍼러를 보내지 않습니다.
+   - 클릭 기록에는 개인 식별 정보를 남기지 않습니다(키워드·페이지 경로·시각만). */
 (function () {
   'use strict';
   var S = window.SSR = window.SSR || {};
   if (S._affLoaded) return; S._affLoaded = true;
 
   var P = S.PLATFORMS = {
-    coupang: { label: '쿠팡', u: 'https://www.coupang.com/np/search?q=' },
-    naver: { label: '네이버쇼핑', u: 'https://search.shopping.naver.com/search/all?query=' },
-    ohou: { label: '오늘의집', u: 'https://ohou.se/productions/feed?query=' },
-    danawa: { label: '다나와 최저가', u: 'https://search.danawa.com/dsearch.php?query=' }
+    coupang: { label: '쿠팡', u: 'https://www.coupang.com/np/search?q=' }
   };
-  var ORDER = ['coupang', 'naver', 'ohou', 'danawa'];
 
   function norm(q) { return String(q || '').replace(/\s+/g, ' ').trim(); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   S.norm = norm;
-  S.searchUrl = function (p, q) { return P[p].u + encodeURIComponent(norm(q)); };
+  S.esc = S.esc || esc;
+  S.searchUrl = function (p, q) { return (P[p] || P.coupang).u + encodeURIComponent(norm(q)); };
   S.affKey = function (p, q) { return p + ':' + norm(q); };
   S.aff = {};
   var st = window.SSR_AFF_STATIC || {};
-  Object.keys(st).forEach(function (k) { if (st[k]) S.aff[k] = st[k]; });
+  Object.keys(st).forEach(function (k) { if (st[k] && k.indexOf('coupang:') === 0) S.aff[k] = st[k]; });
 
-  /* 구매 버튼 묶음 */
-  S.buyLinks = function (q, opt) {
-    opt = opt || {}; q = norm(q);
+  /* 대표 상품 (검색어 → 쿠팡 상품) */
+  var PK = S.picks = {};
+  var pk0 = window.SSR_PICKS || {};
+  Object.keys(pk0).forEach(function (q) {
+    var x = pk0[q]; if (!x || !x.pid) return;
+    PK[norm(q)] = x;
+    if (x.u) S.aff['coupang:@' + norm(q)] = x.u;
+  });
+  S.pick = function (q) { return PK[norm(q)] || null; };
+  /* 대표 상품 제휴 링크가 있을 때만 상품 페이지로 보냅니다(제휴 링크가 없으면 수수료가 생기지 않으므로 검색 결과 제휴 링크를 씁니다). */
+  function pickUrl(q) { return PK[norm(q)] ? (S.aff['coupang:@' + norm(q)] || '') : ''; }
+  S.pickUrl = pickUrl;
+  S.pickDate = (window.SSR_PICKS_META && window.SSR_PICKS_META.date) || '';
+
+  /* 쿠팡 구매 버튼 */
+  S.buyLinks = function (q) {
+    q = norm(q);
     if (!q) return '';
-    var h = '<div class="buy">';
-    ORDER.forEach(function (p) {
-      h += '<a class="buy-btn buy-' + p + '" data-p="' + p + '" data-q="' + esc(q) + '" href="' + esc(S.searchUrl(p, q)) + '" target="_blank" rel="noopener nofollow">' + P[p].label + '</a>';
-    });
-    if (opt.pro && opt.pro.u) h += '<a class="buy-btn buy-pro" data-p="pro" data-q="' + esc(q) + '" href="' + esc(opt.pro.u) + '" target="_blank" rel="noopener nofollow">' + esc(opt.pro.n) + '</a>';
+    var x = PK[q] && pickUrl(q) ? PK[q] : null, h = '<div class="buy">';
+    if (x) h += '<a class="buy-btn buy-coupang buy-pick" data-p="coupang" data-q="@' + esc(q) + '" href="' + esc(pickUrl(q)) + '" target="_blank" rel="noopener nofollow">쿠팡에서 이 상품 보기</a>';
+    h += '<a class="buy-btn ' + (x ? 'buy-alt' : 'buy-coupang') + '" data-p="coupang" data-q="' + esc(q) + '" href="' + esc(S.searchUrl('coupang', q)) + '" target="_blank" rel="noopener nofollow">' + (x ? '쿠팡에서 다른 상품 비교' : '쿠팡에서 찾기') + '</a>';
     return h + '</div>';
   };
+  /* 대표 상품 사진 */
+  S.pickImg = function (q, cls) {
+    var x = PK[norm(q)]; if (!x || !x.img) return '';
+    var pu = pickUrl(q), dq = pu ? '@' + norm(q) : norm(q), href = pu || S.searchUrl('coupang', q);
+    return '<figure class="pick-img' + (cls ? ' ' + cls : '') + '"><a data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(href) + '" target="_blank" rel="noopener nofollow" tabindex="-1" aria-hidden="true">' +
+      '<img src="' + esc(x.img) + '" alt="" width="230" height="230" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></figure>';
+  };
+  /* 대표 상품 설명 한 줄 */
+  S.pickMeta = function (q) {
+    var x = PK[norm(q)]; if (!x) return '';
+    return '<p class="pick-meta"><span class="pick-lb">' + (pickUrl(q) ? '쿠팡 대표 상품' : '쿠팡 인기 상품 예시') + '</span>' + esc(x.n) + (x.rc ? ' <span class="pick-rc">후기 ' + Number(x.rc).toLocaleString('ko-KR') + '개' + (S.pickDate ? ' · ' + esc(S.pickDate) + ' 기준' : '') + '</span>' : '') + '</p>';
+  };
+  /* 사진을 못 불러오면 자리를 비웁니다 */
+  document.addEventListener('error', function (e) {
+    var t = e.target; if (t && t.tagName === 'IMG' && t.closest) { var f = t.closest('.pick-img'); if (f) f.classList.add('is-broken'); }
+  }, true);
   /* 구매 목록 담기 버튼 */
   S.addBtn = function (q, name, note) {
     q = norm(q); if (!q) return '';
@@ -50,7 +77,7 @@
       var a = list[i]; var u = S.aff[S.affKey(a.getAttribute('data-p'), a.getAttribute('data-q'))];
       if (u && a.getAttribute('href') !== u) {
         a.setAttribute('href', u); a.setAttribute('rel', 'sponsored noopener'); a.classList.add('is-aff');
-        if (!a.querySelector('.aff-tag')) { var t = document.createElement('span'); t.className = 'aff-tag'; t.textContent = '제휴'; a.appendChild(t); }
+        if (!a.closest('.pick-img') && !a.querySelector('.aff-tag')) { var t = document.createElement('span'); t.className = 'aff-tag'; t.textContent = '제휴'; a.appendChild(t); }
       }
     }
     syncAddButtons(root);
@@ -144,8 +171,8 @@
     dim = document.createElement('div'); dim.className = 'bl-dim'; dim.hidden = true;
     panel = document.createElement('aside'); panel.className = 'bl-panel'; panel.id = 'blPanel'; panel.setAttribute('aria-label', '구매 목록'); panel.hidden = true;
     panel.innerHTML = '<div class="bl-head"><h2>구매 목록 <b class="bl-count">0</b></h2><button type="button" class="bl-close">닫기</button></div>' +
-      '<p class="bl-disc">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. \'제휴\' 표시가 붙은 링크로 구매하면 스스로연구소가 판매처로부터 판매액의 일부를 수수료로 받으며, 구매 가격은 같습니다.</p>' +
-      '<p class="bl-note">스스로몰은 결제를 받지 않습니다. 항목마다 판매처를 골라 각각 구매하세요. 목록은 이 브라우저에만 저장됩니다.</p>' +
+      '<p class="bl-disc">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. \'제휴\' 표시가 붙은 쿠팡 링크로 구매하면 스스로연구소가 쿠팡으로부터 판매액의 일부를 수수료로 받으며, 구매 가격은 같습니다.</p>' +
+      '<p class="bl-note">스스로몰은 결제를 받지 않습니다. 항목마다 쿠팡 링크로 이동해 각각 구매하세요. 목록은 이 브라우저에만 저장됩니다.</p>' +
       '<ol class="bl-list"></ol>' +
       '<div class="bl-actions"><button type="button" class="btn btn-outline btn-sm" data-bl="copy">목록 복사</button><button type="button" class="btn btn-outline btn-sm" data-bl="share">공유 링크 복사</button><button type="button" class="btn btn-outline btn-sm" data-bl="clear">비우기</button></div>';
     document.body.appendChild(fab); document.body.appendChild(dim); document.body.appendChild(panel);
@@ -162,7 +189,7 @@
         var t = ['[스스로몰 구매 목록]'];
         l.forEach(function (x, i) {
           t.push((i + 1) + '. ' + x.name + (x.note ? ' — ' + x.note : ''));
-          ['coupang', 'naver'].forEach(function (p) { t.push('   ' + P[p].label + ': ' + (S.aff[S.affKey(p, x.q)] || S.searchUrl(p, x.q))); });
+          t.push('   쿠팡: ' + (pickUrl(x.q) || S.aff[S.affKey('coupang', x.q)] || S.searchUrl('coupang', x.q)));
         });
         S.copy ? S.copy(t.join('\n'), act) : null;
       }
@@ -181,7 +208,7 @@
     var l = S.buylist.all(), ol = panel.querySelector('.bl-list');
     if (!l.length) { ol.innerHTML = '<li class="bl-empty">아직 담은 항목이 없습니다. 상품이나 키트에서 \'구매 목록에 담기\'를 누르세요.</li>'; }
     else ol.innerHTML = l.map(function (x) {
-      return '<li><div class="bl-row"><div><strong>' + esc(x.name) + '</strong>' + (x.note ? '<span>' + esc(x.note) + '</span>' : '') + '</div><button type="button" class="bl-rm" data-bl-rm="' + esc(x.q) + '" aria-label="' + esc(x.name) + ' 빼기">빼기</button></div>' + S.buyLinks(x.q) + '</li>';
+      return '<li><div class="bl-row">' + S.pickImg(x.q, 'is-sm') + '<div><strong>' + esc(x.name) + '</strong>' + (x.note ? '<span>' + esc(x.note) + '</span>' : '') + '</div><button type="button" class="bl-rm" data-bl-rm="' + esc(x.q) + '" aria-label="' + esc(x.name) + ' 빼기">빼기</button></div>' + S.buyLinks(x.q) + '</li>';
     }).join('');
     upgradeOnly(panel);
     syncAddButtons();
@@ -190,7 +217,7 @@
     var list = root.querySelectorAll('a[data-p][data-q]');
     for (var i = 0; i < list.length; i++) {
       var a = list[i]; var u = S.aff[S.affKey(a.getAttribute('data-p'), a.getAttribute('data-q'))];
-      if (u) { a.setAttribute('href', u); a.setAttribute('rel', 'sponsored noopener'); a.classList.add('is-aff'); if (!a.querySelector('.aff-tag')) { var t = document.createElement('span'); t.className = 'aff-tag'; t.textContent = '제휴'; a.appendChild(t); } }
+      if (u) { a.setAttribute('href', u); a.setAttribute('rel', 'sponsored noopener'); a.classList.add('is-aff'); if (!a.closest('.pick-img') && !a.querySelector('.aff-tag')) { var t = document.createElement('span'); t.className = 'aff-tag'; t.textContent = '제휴'; a.appendChild(t); } }
     }
   }
 

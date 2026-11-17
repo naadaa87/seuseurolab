@@ -12,16 +12,11 @@
     var m = String(u).match(/[?&](?:q|query)=([^&]*)/); if (!m) return '';
     try { return decodeURIComponent(m[1].replace(/\+/g, ' ')).replace(/\s+/g, ' ').trim(); } catch (e) { return m[1]; }
   }
+  /* 구매 링크는 쿠팡만 씁니다. 엑셀의 쿠팡 검색 링크에서 검색어를 꺼내 쓰고, 없으면 다른 링크의 검색어를 빌려 쿠팡 검색으로 엽니다. */
   function linkBtns(o, pro, name, note) {
-    var q = qOf(o.l3) || (pro === 'tools' ? qOf(o.l2) : '') || qOf(o.l1);
-    var proLink = (o.l4 && o.l4n && o.l4n !== '-' && ['다나와', '오늘의집', '쿠팡'].indexOf(o.l4n) < 0) ? { n: o.l4n, u: o.l4 } : null;
-    if (q && S.buyLinks) return S.buyLinks(q, { pro: proLink }) + (name && S.addBtn ? S.addBtn(q, name, note || '') : '');
-    var a = [];
-    if (o.l1) a.push('<a href="' + esc(o.l1) + '" target="_blank" rel="noopener nofollow">다나와</a>');
-    if (o.l2) a.push('<a href="' + esc(o.l2) + '" target="_blank" rel="noopener nofollow">' + (pro === 'tools' ? '쿠팡' : '오늘의집') + '</a>');
-    if (o.l3) a.push('<a href="' + esc(o.l3) + '" target="_blank" rel="noopener nofollow">쿠팡</a>');
-    if (o.l4 && o.l4n && o.l4n !== '-' && ['다나와','오늘의집','쿠팡'].indexOf(o.l4n) < 0) a.push('<a class="pro" href="' + esc(o.l4) + '" target="_blank" rel="noopener nofollow">' + esc(o.l4n) + '</a>');
-    return a.length ? '<div class="links">' + a.join('') + '</div>' : '';
+    var q = qOf(o.l3) || (pro === 'tools' ? qOf(o.l2) : '') || qOf(o.l1) || qOf(o.l2);
+    if (q && S.buyLinks) return S.buyLinks(q) + (name && S.addBtn ? S.addBtn(q, name, note || '') : '');
+    return '';
   }
   function accordion(root, sel) {
     qa(sel + ' > button', root).forEach(function (h) {
@@ -60,7 +55,8 @@
         if (r.star) tags += '<span class="tag tag-star">★ 후기 우수</span>';
         if (r.value) tags += '<span class="tag tag-value">◆ 가성비</span>';
         if (r.apply !== '공용') tags += '<span class="tag">' + esc(r.apply) + '</span>';
-        var srcs = (r.src || '').split(/[,·]\s*/).filter(function (x) { return srcMap[x]; }).map(function (x) { return '<a href="' + esc(srcMap[x].url) + '" target="_blank" rel="noopener nofollow">' + esc(srcMap[x].name) + '</a>'; }).join(' · ');
+        /* 출처는 이름만 적고, 공공기관(.go.kr·.or.kr) 자료만 링크를 겁니다. 판매처·블로그로 나가는 링크는 두지 않습니다. */
+        var srcs = (r.src || '').split(/[,·]\s*/).filter(function (x) { return srcMap[x]; }).map(function (x) { var u = srcMap[x].url || ''; return /^https?:\/\/([a-z0-9-]+\.)*(go|or)\.kr(\/|$)/i.test(u) ? '<a href="' + esc(u) + '" target="_blank" rel="noopener nofollow">' + esc(srcMap[x].name) + '</a>' : '<span>' + esc(srcMap[x].name) + '</span>'; }).join(' · ');
         html += '<div class="c-item" id="c-' + r.no + '"><button class="c-head" type="button" aria-expanded="false">' +
           '<span class="nm">' + esc(r.name) + tags + '<span class="path">' + esc(r.cat) + ' › ' + esc(r.sub) + ' · 난이도 ' + esc(r.lv) + '/5 · 원상복구 ' + esc(r.restore || '-') + '</span></span>' +
           gbadge(r.grade) + '<span class="arrow" aria-hidden="true"></span></button>' +
@@ -136,7 +132,9 @@
       var items = S.lib.stores.filter(function (s) { return s.type === tp; });
       html += '<h3 class="grp-title">' + esc(tp) + '</h3><div class="store-grid">';
       items.forEach(function (s) {
-        html += '<a class="store" href="' + esc(s.url) + '" target="_blank" rel="noopener nofollow"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div></a>';
+        /* 외부 구매처로 가는 링크는 두지 않습니다. 쿠팡은 스스로몰(쿠팡 제휴 링크)로 연결합니다. */
+        if (/쿠팡/.test(s.name)) html += '<a class="store" href="mall.html"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div><div class="go">스스로몰에서 쿠팡 상품 보기</div></a>';
+        else html += '<div class="store is-info"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div></div>';
       });
       html += '</div>';
     });

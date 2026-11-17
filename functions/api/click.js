@@ -1,6 +1,6 @@
 /**
  * POST /api/click — 스스로몰 구매 링크 클릭 기록 (navigator.sendBeacon)
- * 저장 항목: 링크 키(판매처:검색어), 제휴 여부, 상품 id, 페이지 경로, 시각. IP·기기 정보 등 개인 식별 정보는 저장하지 않습니다.
+ * 저장 항목: 링크 키(coupang:검색어, 대표 상품은 coupang:@검색어), 제휴 여부, 상품 id, 페이지 경로, 시각. IP·기기 정보 등 개인 식별 정보는 저장하지 않습니다.
  */
 let ready = false;
 async function ensure(env) {
@@ -14,7 +14,7 @@ async function ensure(env) {
   ]);
   ready = true;
 }
-const KEY_RE = /^(coupang|naver|ohou|danawa|pro):.{1,80}$/;
+const KEY_RE = /^coupang:.{1,82}$/;
 
 export async function onRequestPost({ request, env }) {
   if (!env.DB) return new Response(null, { status: 204 });

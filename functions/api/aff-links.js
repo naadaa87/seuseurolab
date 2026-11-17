@@ -2,7 +2,8 @@
  * 스스로몰 제휴 링크
  *  GET  /api/aff-links            → 등록된 제휴 링크 전체 (공개, 5분 캐시)
  *  POST /api/aff-links            → 링크 저장·삭제 (관리자: 헤더 X-Admin-Key = 환경변수 ADMIN_KEY)
- *       body: { "links": { "coupang:검색어": "https://link.coupang.com/a/xxxx", "naver:검색어": "" } }  (빈 값 = 삭제)
+ *       body: { "links": { "coupang:검색어": "https://link.coupang.com/a/xxxx", "coupang:@검색어": "" } }  (빈 값 = 삭제)
+ *       키: coupang:검색어 = 쿠팡 검색 결과 제휴 링크, coupang:@검색어 = 그 품목의 대표 상품 제휴 링크
  * D1 바인딩 이름: DB. 테이블은 처음 호출할 때 자동으로 만듭니다.
  */
 const json = (body, status = 200, extra = {}) =>
@@ -17,18 +18,16 @@ async function ensure(env) {
 }
 const isAdmin = (request, env) => !!env.ADMIN_KEY && (request.headers.get('X-Admin-Key') || '') === env.ADMIN_KEY;
 
-// 등록 가능한 판매처 도메인 (관리 키가 새더라도 엉뚱한 링크가 걸리지 않도록 제한)
-const ALLOW = ['coupang.com', 'naver.com', 'naver.me', 'ohou.se', 'danawa.com', 'linkprice.com', '11st.co.kr', 'gmarket.co.kr',
-  'auction.co.kr', 'ssg.com', 'lotteon.com', 'aliexpress.com', 'kurly.com', 'daisomall.co.kr', 'ikea.com'];
+// 등록 가능한 도메인: 쿠팡만 (관리 키가 새더라도 엉뚱한 링크가 걸리지 않도록 제한)
+const ALLOW = ['coupang.com'];
 function okUrl(u, env) {
   try {
     const x = new URL(u);
     if (x.protocol !== 'https:') return false;
-    if (env.AFF_ALLOW_ANY === '1') return true;
     return ALLOW.some((d) => x.hostname === d || x.hostname.endsWith('.' + d));
   } catch { return false; }
 }
-const KEY_RE = /^(coupang|naver|ohou|danawa|pro):.{1,80}$/;
+const KEY_RE = /^coupang:.{1,82}$/;
 
 export async function onRequestGet({ env }) {
   if (!env.DB) return json({ ok: false, error: 'no-db' }, 503);

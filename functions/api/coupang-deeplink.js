@@ -1,6 +1,8 @@
 /**
- * POST /api/coupang-deeplink — 쿠팡 검색 URL을 쿠팡 파트너스 링크로 일괄 변환 (관리자: 헤더 X-Admin-Key)
- * body: { "qs": ["검색어1", "검색어2", ...] }  (한 번에 최대 60개)
+ * POST /api/coupang-deeplink — 쿠팡 검색 URL·상품 URL을 쿠팡 파트너스 링크로 일괄 변환 (관리자: 헤더 X-Admin-Key)
+ * body: { "qs": ["검색어1", "검색어2", ...] }  → 검색 결과 링크 (결과 키 = 검색어)
+ *       { "items": [{ "k": "@검색어", "url": "https://www.coupang.com/vp/products/123" }, ...] } → 상품 링크 (결과 키 = k)
+ * 한 번에 최대 60개
  * 필요 환경변수: COUPANG_ACCESS_KEY, COUPANG_SECRET_KEY (쿠팡 파트너스 최종 승인 후 발급), 선택: COUPANG_SUB_ID
  * 변환 결과는 저장하지 않고 돌려줍니다. 관리자 화면이 확인 후 /api/aff-links 로 저장합니다.
  */
@@ -25,13 +27,19 @@ export async function onRequestPost({ request, env }) {
   if (!env.COUPANG_ACCESS_KEY || !env.COUPANG_SECRET_KEY) return json({ ok: false, error: 'no-keys', message: '쿠팡 파트너스 API 키(COUPANG_ACCESS_KEY, COUPANG_SECRET_KEY)가 환경변수에 없습니다.' }, 400);
   let body;
   try { body = await request.json(); } catch { return json({ ok: false, error: 'invalid-json' }, 400); }
-  const qs = [...new Set((body.qs || []).map((q) => String(q).replace(/\s+/g, ' ').trim()).filter(Boolean))].slice(0, 60);
-  if (!qs.length) return json({ ok: false, error: 'no-qs' }, 400);
+  const jobs = [];
+  for (const q of new Set((body.qs || []).map((q) => String(q).replace(/\s+/g, ' ').trim()).filter(Boolean))) jobs.push({ k: q, url: searchUrl(q) });
+  for (const it of (Array.isArray(body.items) ? body.items : [])) {
+    const k = String((it && it.k) || '').replace(/\s+/g, ' ').trim(); const u = String((it && it.url) || '');
+    if (k && /^https:\/\/(www\.|m\.)?coupang\.com\/vp\/products\/\d+/.test(u)) jobs.push({ k, url: u });
+  }
+  jobs.splice(60);
+  if (!jobs.length) return json({ ok: false, error: 'no-qs' }, 400);
 
   const results = {}; const failed = []; const messages = [];
-  for (let i = 0; i < qs.length; i += 20) {
-    const chunk = qs.slice(i, i + 20);
-    const urls = chunk.map(searchUrl);
+  for (let i = 0; i < jobs.length; i += 20) {
+    const chunk = jobs.slice(i, i + 20).map((j) => j.k);
+    const urls = jobs.slice(i, i + 20).map((j) => j.url);
     const dt = signedDate();
     const signature = await hmacHex(env.COUPANG_SECRET_KEY, dt + 'POST' + PATH);
     const auth = `CEA algorithm=HmacSHA256, access-key=${env.COUPANG_ACCESS_KEY}, signed-date=${dt}, signature=${signature}`;

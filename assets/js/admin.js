@@ -60,31 +60,33 @@
   }
   function clicks(k) { var t = (stats.top || []).filter(function (x) { return x.k === k; })[0]; return t ? t.n : 0; }
 
+  /* fPlat: coupang = 쿠팡 검색 결과 링크, pick = 품목별 대표 상품 링크 */
+  function keyOf(mode, q) { return mode === 'pick' ? 'coupang:@' + q : 'coupang:' + q; }
+  function srcUrl(mode, q) { var x = S.pick(q); return mode === 'pick' ? (x ? 'https://www.coupang.com/vp/products/' + x.pid : '') : S.searchUrl('coupang', q); }
   function renderLinks() {
-    var p = $('#fPlat').value, scope = $('#fScope').value, state = $('#fState').value, sort = $('#fSort').value, t = $('#fText').value.trim().toLowerCase();
-    var list = rows.filter(function (r) {
-      if (scope === 'mall' && !r.inMall) return false;
-      var has = !!links[p + ':' + r.q];
+    var mode = $('#fPlat').value, scope = $('#fScope').value, state = $('#fState').value, sort = $('#fSort').value, t = $('#fText').value.trim().toLowerCase();
+    var base = rows.filter(function (r) { return mode === 'pick' ? !!S.pick(r.q) : (scope === 'all' || r.inMall); });
+    var list = base.filter(function (r) {
+      var has = !!links[keyOf(mode, r.q)];
       if (state === 'none' && has) return false;
       if (state === 'has' && !has) return false;
-      if (t && (r.q + ' ' + r.uses.join(' ')).toLowerCase().indexOf(t) < 0) return false;
+      if (t && (r.q + ' ' + r.uses.join(' ') + ' ' + (mode === 'pick' ? S.pick(r.q).n : '')).toLowerCase().indexOf(t) < 0) return false;
       return true;
     });
-    if (sort === 'clicks') list.sort(function (a, b) { return clicks(p + ':' + b.q) - clicks(p + ':' + a.q) || a.order - b.order; });
+    if (sort === 'clicks') list.sort(function (a, b) { return clicks(keyOf(mode, b.q)) - clicks(keyOf(mode, a.q)) || a.order - b.order; });
     else if (sort === 'name') list.sort(function (a, b) { return a.q.localeCompare(b.q, 'ko'); });
     else list.sort(function (a, b) { return a.order - b.order; });
-    var total = rows.filter(function (r) { return scope === 'all' || r.inMall; }).length;
-    var reg = rows.filter(function (r) { return (scope === 'all' || r.inMall) && links[p + ':' + r.q]; }).length;
-    $('#linkCount').textContent = '표시 ' + list.length + '개 · 등록 ' + reg + ' / ' + total;
+    var reg = base.filter(function (r) { return links[keyOf(mode, r.q)]; }).length;
+    $('#linkCount').textContent = '표시 ' + list.length + '개 · 등록 ' + reg + ' / ' + base.length;
     $('#linkBody').innerHTML = list.map(function (r) {
-      var k = p + ':' + r.q, cur = dirty[k] != null ? dirty[k] : (links[k] || '');
-      return '<tr class="' + (links[k] ? 'has-link' : '') + '" data-k="' + esc(k) + '"><td><div class="k">' + esc(r.q) + '</div><div class="u">' + esc(r.uses.slice(0, 3).join(' / ')) + (r.uses.length > 3 ? ' 외 ' + (r.uses.length - 3) : '') + '</div></td>' +
+      var k = keyOf(mode, r.q), cur = dirty[k] != null ? dirty[k] : (links[k] || ''), su = srcUrl(mode, r.q), pk = S.pick(r.q);
+      var sub = mode === 'pick' && pk ? '대표 상품 · ' + pk.n : r.uses.slice(0, 3).join(' / ') + (r.uses.length > 3 ? ' 외 ' + (r.uses.length - 3) : '');
+      return '<tr class="' + (links[k] ? 'has-link' : '') + '" data-k="' + esc(k) + '"><td><div class="k">' + esc(r.q) + '</div><div class="u">' + esc(sub) + '</div></td>' +
         '<td class="c">' + (clicks(k) || '') + '</td>' +
-        '<td><input type="url" value="' + esc(cur) + '" placeholder="' + (p === 'coupang' ? 'https://link.coupang.com/a/…' : '제휴 링크') + '" aria-label="' + esc(r.q) + ' 제휴 링크"></td>' +
-        '<td style="white-space:nowrap"><button type="button" class="btn btn-outline btn-sm" data-copy-url="' + esc(S.searchUrl(p, r.q)) + '">검색 URL 복사</button> <a class="btn btn-outline btn-sm" href="' + esc(S.searchUrl(p, r.q)) + '" target="_blank" rel="noopener">열기</a></td></tr>';
+        '<td><input type="url" value="' + esc(cur) + '" placeholder="https://link.coupang.com/a/…" aria-label="' + esc(r.q) + ' 제휴 링크"></td>' +
+        '<td style="white-space:nowrap"><button type="button" class="btn btn-outline btn-sm" data-copy-url="' + esc(su) + '">' + (mode === 'pick' ? '상품 URL 복사' : '검색 URL 복사') + '</button> <a class="btn btn-outline btn-sm" href="' + esc(su) + '" target="_blank" rel="noopener">열기</a></td></tr>';
     }).join('');
     $('#saveDirty').textContent = '변경 저장' + (Object.keys(dirty).length ? ' (' + Object.keys(dirty).length + ')' : '');
-    $('#apiConvert').hidden = p !== 'coupang';
   }
   ['#fPlat', '#fScope', '#fState', '#fSort'].forEach(function (s) { $(s).addEventListener('change', renderLinks); });
   $('#fText').addEventListener('input', renderLinks);
@@ -114,11 +116,11 @@
 
   /* 붙여넣기 일괄 저장: 한 줄에 "검색어, 링크" 또는 "판매처:검색어, 링크" (탭 구분도 가능) */
   $('#bulkSave').addEventListener('click', function () {
-    var p = $('#fPlat').value, map = {}, bad = 0;
+    var mode = $('#fPlat').value, map = {}, bad = 0;
     $('#bulkText').value.split(/\r?\n/).forEach(function (line) {
       line = line.trim(); if (!line) return;
       var m = line.match(/^(.*?)[\t,]\s*(https?:\/\/\S+)\s*$/); if (!m) { bad++; return; }
-      var k = m[1].trim(); if (!/^(coupang|naver|ohou|danawa|pro):/.test(k)) k = p + ':' + k;
+      var k = m[1].trim(); if (k.indexOf('coupang:') !== 0) k = keyOf(mode, k.replace(/^@/, ''));
       map[k.replace(/\s+/g, ' ')] = m[2];
     });
     if (bad) log('형식이 맞지 않는 줄 ' + bad + '개는 건너뜁니다.');
@@ -129,11 +131,13 @@
   $('#apiConvert').addEventListener('click', function () {
     var btn = this;
     if (!key()) { log('관리 키를 먼저 입력하세요.'); return; }
+    var mode = $('#fPlat').value;
     var targets = $$('#linkBody tr[data-k]').map(function (tr) { return tr.getAttribute('data-k'); }).filter(function (k) { return !links[k]; }).slice(0, 60).map(function (k) { return k.slice('coupang:'.length); });
     if (!targets.length) { log('지금 보이는 목록에 미등록 항목이 없습니다.'); return; }
     if (!confirm('보이는 목록의 미등록 ' + targets.length + '개를 쿠팡 파트너스 API로 변환하고 저장할까요?')) return;
     btn.disabled = true; log('쿠팡 API 변환 요청 ' + targets.length + '개…');
-    api('/api/coupang-deeplink', { method: 'POST', body: JSON.stringify({ qs: targets }) }).then(function (j) {
+    var body = mode === 'pick' ? { items: targets.map(function (k) { return { k: k, url: srcUrl('pick', k.slice(1)) }; }) } : { qs: targets };
+    api('/api/coupang-deeplink', { method: 'POST', body: JSON.stringify(body) }).then(function (j) {
       if (j.error === 'no-keys') { log(j.message); return; }
       if (j.messages && j.messages.length) log('쿠팡 응답: ' + j.messages.join(' / '));
       var map = {}; Object.keys(j.results || {}).forEach(function (q) { map['coupang:' + q] = j.results[q]; });
@@ -152,11 +156,12 @@
 
   /* ---------- 통계 ---------- */
   function renderStats() {
-    var nameOf = function (k) { var q = k.slice(k.indexOf(':') + 1); var r = byQ[q]; return r ? r.uses[0] : ''; };
+    var nameOf = function (k) { var q = k.slice(k.indexOf(':') + 1).replace(/^@/, ''); var r = byQ[q]; return r ? r.uses[0] : ''; };
     $('#statSum').textContent = '최근 30일 구매 링크 클릭 ' + (stats.total || 0) + '회 · 그중 제휴 링크 ' + (stats.affClicks || 0) + '회';
     $('#statTop').innerHTML = (stats.top || []).slice(0, 60).map(function (x, i) {
       var plat = x.k.split(':')[0];
-      return '<tr><td class="c">' + (i + 1) + '</td><td><div class="k">' + esc(x.k.slice(plat.length + 1)) + '</div><div class="u">' + esc(nameOf(x.k)) + '</div></td><td>' + esc((S.PLATFORMS[plat] || { label: plat }).label) + '</td><td class="c">' + x.n + '</td><td class="c">' + (x.a || 0) + '</td><td>' + (links[x.k] ? '등록됨' : '<strong style="color:var(--stop)">미등록</strong>') + '</td></tr>';
+      var kq = x.k.slice(plat.length + 1), isPick = kq.charAt(0) === '@';
+      return '<tr><td class="c">' + (i + 1) + '</td><td><div class="k">' + esc(isPick ? kq.slice(1) : kq) + '</div><div class="u">' + esc(nameOf(x.k)) + '</div></td><td>' + (isPick ? '쿠팡 대표 상품' : '쿠팡 검색') + '</td><td class="c">' + x.n + '</td><td class="c">' + (x.a || 0) + '</td><td>' + (links[x.k] ? '등록됨' : '<strong style="color:var(--stop)">미등록</strong>') + '</td></tr>';
     }).join('') || '<tr><td colspan="6">아직 기록이 없습니다.</td></tr>';
     $('#statPages').innerHTML = (stats.pages || []).map(function (x) { return '<tr><td>' + esc(x.page || '-') + '</td><td class="c">' + x.n + '</td></tr>'; }).join('') || '<tr><td colspan="2">아직 기록이 없습니다.</td></tr>';
   }

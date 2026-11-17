@@ -450,6 +450,8 @@ table { border-collapse: collapse; width: 100%; }
 .store .nm { font-weight: 600; color: var(--navy); }
 .store .st { font-size: .86rem; color: var(--ink); margin: 4px 0 2px; }
 .store .it { font-size: .8rem; color: var(--muted); }
+.store.is-info:hover { border-color: var(--line); }
+.store .go { font-size: .8rem; font-weight: 600; color: var(--orange-dark); margin-top: 8px; }
 /* 계산기 */
 .calc { border: 1px solid var(--line); padding: 22px 24px; background: #fff; }
 .calc h3 { font-size: 1.05rem; margin-bottom: 4px; }
@@ -511,7 +513,9 @@ table { border-collapse: collapse; width: 100%; }
 .buy-btn:hover { border-color: var(--navy); }
 .buy-btn.buy-coupang { background: var(--navy); border-color: var(--navy); color: #fff; }
 .buy-btn.buy-coupang:hover { background: var(--navy-2); }
-.buy-btn.buy-pro { border-style: dashed; }
+.buy-btn.buy-alt { color: var(--navy); background: #fff; border-color: var(--line-2); font-weight: 500; }
+.buy-btn.buy-alt:hover { border-color: var(--navy); }
+.buy-alt .aff-tag { background: var(--warn-bg); color: var(--orange-dark); }
 .aff-tag { display: inline-block; font-size: .64rem; font-weight: 700; padding: 0 4px; border-radius: 2px; background: var(--warn-bg); color: var(--orange-dark); line-height: 1.5; }
 .buy-coupang .aff-tag { background: var(--orange); color: #fff; }
 .tbl .buy { margin-top: 0; gap: 5px; }
@@ -558,6 +562,21 @@ table { border-collapse: collapse; width: 100%; }
 .prod-kit a { color: var(--orange-dark); font-weight: 600; }
 .prod .buy { margin-top: auto; padding-top: 10px; }
 
+/* 쿠팡 대표 상품 사진 */
+.pick-img { margin: 0; background: #fff; }
+.pick-img { box-sizing: border-box; overflow: hidden; }
+.pick-img a { display: block; width: 100%; height: 100%; }
+.pick-img img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.pick-img.is-empty { display: flex; align-items: center; justify-content: center; background: var(--mist); color: var(--muted); font-size: .8rem; letter-spacing: .02em; }
+.pick-img.is-broken img { visibility: hidden; }
+.pick-img.is-broken { background: var(--mist); }
+.pick-img.prod-img { margin: -18px -18px 14px; height: 190px; padding: 12px; border-bottom: 1px solid var(--line); }
+.pick-img.ki-img { width: 92px; height: 92px; border: 1px solid var(--line); padding: 4px; }
+.pick-img.is-sm { width: 56px; height: 56px; border: 1px solid var(--line); padding: 2px; flex-shrink: 0; }
+.pick-meta { font-size: .78rem; color: var(--ink); margin: 8px 0 0; line-height: 1.5; }
+.pick-meta .pick-lb { display: inline-block; font-size: .68rem; font-weight: 700; color: var(--orange-dark); background: var(--warn-bg); padding: 0 5px; border-radius: 2px; margin-right: 6px; }
+.pick-meta .pick-rc { color: var(--muted); white-space: nowrap; }
+
 /* 키트 상세 */
 .kit-sum { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 28px; }
 @media (max-width: 760px) { .kit-sum { grid-template-columns: repeat(2, 1fr); } }
@@ -572,7 +591,16 @@ table { border-collapse: collapse; width: 100%; }
 .ki-note { font-size: .88rem; margin: 4px 0; color: var(--ink); }
 .ki-meta { font-size: .8rem; color: var(--muted); margin: 0; }
 .ki-buy .buy { margin-top: 0; }
-@media (max-width: 860px) { .kit-item { grid-template-columns: 64px 1fr; } .ki-buy { grid-column: 1 / -1; } }
+.kit-item.has-img { grid-template-columns: 76px 92px 1fr minmax(260px, 360px); }
+.ki-main .pick-meta { margin-top: 6px; }
+@media (max-width: 860px) {
+  .kit-item, .kit-item.has-img { grid-template-columns: 64px 1fr; }
+  .ki-buy { grid-column: 1 / -1; }
+  .kit-item.has-img .ki-role { grid-column: 1; grid-row: 1; }
+  .kit-item.has-img .ki-img { grid-column: 1; grid-row: 2; width: 64px; height: 64px; }
+  .kit-item.has-img .ki-main { grid-column: 2; grid-row: 1 / span 2; }
+  .kit-item.has-img .ki-buy { grid-row: 3; }
+}
 .kit-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0 0; }
 .steps-line { list-style: none; padding: 0; margin: 0; counter-reset: s; }
 .steps-line li { counter-increment: s; padding: 8px 0 8px 36px; position: relative; border-bottom: 1px solid var(--mist-2); font-size: .95rem; }
@@ -610,6 +638,7 @@ table { border-collapse: collapse; width: 100%; }
 .bl-list { list-style: none; padding: 0; margin: 0 0 16px; }
 .bl-list > li { border-top: 1px solid var(--line); padding: 12px 0; }
 .bl-row { display: flex; justify-content: space-between; gap: 10px; }
+.bl-row > div { flex: 1; min-width: 0; }
 .bl-row strong { display: block; color: var(--navy); font-size: .95rem; }
 .bl-row span { font-size: .8rem; color: var(--muted); }
 .bl-rm { border: 0; background: none; color: var(--muted); font-size: .8rem; text-decoration: underline; flex-shrink: 0; }

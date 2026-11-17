@@ -29,14 +29,16 @@
 
   function card(p) {
     var kits = (kitOf[p.id] || []).slice(0, 2).map(function (k) { return '<a href="kit-' + k.slug + '.html">' + esc(k.name) + '</a>'; }).join(' · ');
-    return '<article class="prod" data-pid="' + p.id + '">' +
+    return '<article class="prod' + (S.pick(p.q) ? ' has-pick' : '') + '" data-pid="' + p.id + '">' +
+      (S.pickImg(p.q, 'prod-img') || '<div class="pick-img prod-img is-empty" aria-hidden="true">' + esc(catLabel[p.cat] || '') + '</div>') +
       '<div class="prod-cat">' + esc(catLabel[p.cat]) + (p.sub ? ' · ' + esc(p.sub.replace('공구 · ', '')) : '') + '</div>' +
       '<h3 class="prod-nm">' + esc(p.name) + '</h3>' +
       (p.spec ? '<div class="prod-spec">' + esc(p.spec) + '</div>' : '') +
       '<p class="prod-use">' + esc(p.use) + '</p>' +
       '<dl class="prod-meta"><dt>참고 가격</dt><dd>' + esc(p.price) + '</dd>' + (p.brand ? '<dt>추천</dt><dd>' + esc(p.brand) + '</dd>' : '') + (p.tip ? '<dt>고르는 법</dt><dd>' + esc(p.tip) + '</dd>' : '') + '</dl>' +
       (kits ? '<p class="prod-kit">포함 키트 · ' + kits + '</p>' : '') +
-      S.buyLinks(p.q, { pro: p.pro }) + S.addBtn(p.q, p.name, '') + '</article>';
+      S.pickMeta(p.q) +
+      S.buyLinks(p.q) + S.addBtn(p.q, p.name, '') + '</article>';
   }
   function render() {
     var t = st.text.trim().toLowerCase();
