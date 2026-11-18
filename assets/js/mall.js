@@ -221,7 +221,7 @@
     promo.innerHTML = PROMO.map(function (x) {
       var k = M.kits.filter(function (y) { return y.slug === x[0]; })[0]; if (!k) return '';
       return '<a class="mp" href="kit-' + k.slug + '.html"><span class="mp-txt"><span class="mp-when">' + esc(x[1]) + '</span><strong>' + esc(k.name) + '</strong><span class="mp-sub">' + esc(k.short) + '</span><span class="mp-go">' + k.items.length + '개 구성 보기</span></span><span class="mp-media" aria-hidden="true">' + kitThumbs(k, 4) + '</span></a>';
-    }).join('');
+    }).join('') + '<a class="mp mp-diag" href="diagnosis.html"><span class="mp-txt"><span class="mp-when">무엇을 직접 할 수 있을지 모르겠다면</span><strong>7분 무료 진단</strong><span class="mp-sub">공정을 나누고 맞는 키트를 바로 연결합니다</span></span></a>';
   }
 
   /* 키트 구성 전체 담기 */
