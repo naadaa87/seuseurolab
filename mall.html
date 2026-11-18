@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="naver-site-verification" content="5d2b5cd463077b17e435a6188e3aeccea3703258" />
 <title>스스로몰 | 스스로연구소</title>
-<meta name="description" content="상업공간 셀프시공 도구·자재를 공정별 키트로 묶어 쿠팡에서 구매하도록 연결합니다. 키트 15종, 도구·자재 160개.">
+<meta name="description" content="셀프시공 도구·자재 160개를 검색하고, 공정별 키트 15종으로 한 번에 준비하세요. 품목마다 쿠팡 대표 상품 사진과 구매 링크를 연결했습니다.">
 <link rel="canonical" href="https://seuseurolab.com/mall">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="스스로연구소">
@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20261118">
+<link rel="stylesheet" href="assets/css/style.css?v=20261118b">
 
 </head>
 <body data-mall>
@@ -34,41 +34,101 @@
 </header>
 <main>
 
-<section class="mall-hero"><div class="wrap page-hero-grid">
-  <div>
-    <div class="kicker">스스로몰</div>
-    <h1>판정이 끝나면,<br>필요한 만큼만 삽니다</h1>
-    <p class="lead">공정마다 필요한 도구와 자재를 묶어 쿠팡에서 바로 살 수 있게 연결합니다. 품목마다 쿠팡에서 많이 팔리고 후기가 많은 상품을 하나씩 골라 사진과 함께 보여 드립니다. 스스로몰은 결제를 받지 않습니다.</p>
-    <ul class="mall-points"><li>공정별 키트 15종</li><li>도구·자재 160개</li><li>쿠팡 대표 상품 사진</li><li>구매 목록 저장·공유</li></ul>
-    <div class="hero-cta"><a class="btn btn-primary btn-lg" href="#kits">공정별 키트 보기</a><a class="btn btn-outline btn-lg" href="diagnosis.html">내 현장 공정부터 진단</a></div>
-    <aside class="disclosure" role="note"><strong>제휴 링크 안내</strong>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 이 페이지의 구매 링크는 모두 쿠팡 파트너스 제휴 링크이며, 이 링크로 구매하시면 스스로연구소(주식회사 블랭크)가 쿠팡으로부터 판매액의 일부를 수수료로 받습니다. 구매 가격은 달라지지 않습니다. 상품 사진은 쿠팡에 등록된 이미지이며, 가격·재고·옵션은 쿠팡 상품 화면이 기준입니다.</aside>
+<section class="mall-top">
+  <div class="wrap">
+    <aside class="disclosure disclosure-slim" role="note"><strong>제휴 링크 안내</strong>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. <details class="dc-more"><summary>자세히</summary>이 페이지의 구매 링크는 모두 쿠팡 파트너스 제휴 링크이며, 이 링크로 구매하시면 스스로연구소(주식회사 블랭크)가 쿠팡으로부터 판매액의 일부를 수수료로 받습니다. 구매 가격은 달라지지 않습니다. 상품 사진은 쿠팡에 등록된 이미지이며, 가격·재고·옵션은 쿠팡 상품 화면이 기준입니다.</details></aside>
+
+    <div class="mall-hero2">
+      <div class="mh-main">
+      <div class="mall-head">
+        <h1>스스로몰</h1>
+        <p>셀프시공에 쓰는 도구·자재 160개를 공정별 키트 15종으로 묶었습니다. 고르는 건 여기서, 결제는 쿠팡에서 합니다.</p>
+      </div>
+  
+      <form class="ms" id="mallSearchForm" role="search" autocomplete="off">
+        <label class="sr-only" for="mallQ">자재·공구·공정 검색</label>
+        <div class="ms-box">
+          <svg class="ms-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="mallQ" type="search" placeholder="데코타일, 실리콘처럼 자재 이름이나 '바닥 교체'처럼 하려는 공사를 입력하세요" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="msPop" enterkeyhint="search">
+          <button class="ms-go" type="submit">검색</button>
+        </div>
+        <div class="ms-ruler" aria-hidden="true"></div>
+        <div class="ms-pop" id="msPop" role="listbox" aria-label="검색 제안" hidden></div>
+      </form>
+      <div class="ms-tags" id="msTags"><span>추천 검색어</span></div>
+      </div>
+      <aside class="mall-promo" id="mallPromo" aria-label="상황별 추천 키트"></aside>
+    </div>
+
+    <nav class="cat-rail" id="catRail" aria-label="카테고리로 찾기"></nav>
   </div>
-  <div class="blueprint"><img src="assets/img/plan-samples.jpg" alt="도면 위의 자재 샘플과 줄자" width="1600" height="900" fetchpriority="high"><span class="mark" aria-hidden="true"></span></div>
+</section>
+
+<section class="mall-pop" id="popular"><div class="wrap">
+  <div class="mall-sh">
+    <div>
+      <h2>자주 찾는 제품·키트</h2>
+      <p>최근 30일 동안 스스로몰에서 구매 버튼이 많이 눌린 품목과, 여러 공정에 공통으로 들어가는 품목 순서입니다.</p>
+    </div>
+    <div class="seg" role="tablist" aria-label="보기 전환">
+      <button type="button" role="tab" id="popTabP" aria-selected="true" aria-controls="popTrack" data-pop="p">제품</button>
+      <button type="button" role="tab" id="popTabK" aria-selected="false" aria-controls="popTrack" data-pop="k">키트</button>
+    </div>
+  </div>
+  <div class="pop-wrap">
+    <button type="button" class="pop-nav pop-prev" aria-label="이전 목록" data-dir="-1">‹</button>
+    <ol class="pop-track" id="popTrack" role="tabpanel" aria-labelledby="popTabP" tabindex="0"></ol>
+    <button type="button" class="pop-nav pop-next" aria-label="다음 목록" data-dir="1">›</button>
+  </div>
 </div></section>
 
-<section class="section" id="kits"><div class="wrap">
-  <div class="sec-head"><h2>공정별 키트</h2><p>공정 하나를 끝내는 데 필요한 주재료·부자재·공구를 한 묶음으로 정리했습니다. 각 키트에는 수량 계산법, 시공 순서, 주의할 법규가 함께 있습니다.</p></div>
-  <div class="kit-grid" id="kitGrid"></div>
+<section class="mall-kits" id="kits"><div class="wrap">
+  <div class="kit-intro">
+    <div class="kit-intro-text">
+      <h2>공정별 키트</h2>
+      <p>키트는 공정 하나를 끝내는 데 필요한 물품을 한 세트로 묶은 것입니다. 예를 들어 '셀프 도장 키트'에는 페인트만 있는 게 아니라 젯소, 롤러와 폴대, 마스킹테이프, 퍼티, 사다리까지 들어 있습니다. 현장에서 하나가 빠져 작업이 멈추는 일을 줄이려고 만들었습니다.</p>
+      <p class="kit-intro-note">키트를 통째로 사지 않아도 됩니다. 이미 있는 공구는 빼고 필요한 품목만 담으세요.</p>
+    </div>
+    <ol class="kit-how">
+      <li><strong>공정을 고릅니다</strong><span>바닥, 벽, 조명처럼 이번에 직접 할 공사에 맞는 키트를 고릅니다.</span></li>
+      <li><strong>구성과 수량을 확인합니다</strong><span>키트 페이지에서 품목마다 하는 일, 면적당 필요한 양, 시공 순서를 봅니다.</span></li>
+      <li><strong>필요한 것만 담습니다</strong><span>구매 목록에 모아 두고 쿠팡에서 한 번에 주문합니다. 목록은 링크로 공유할 수 있습니다.</span></li>
+    </ol>
+  </div>
+  <div class="kit-tabs" id="kitTabs" role="group" aria-label="키트 분류"></div>
+  <div class="kit-list" id="kitGrid"></div>
 </div></section>
 
-<section class="section section-mist" id="products"><div class="wrap">
+<section class="mall-shop" id="products"><div class="wrap">
   <div class="shared-bar" id="sharedList" hidden><span>공유받은 구매 목록 <strong data-n>0</strong>개 항목이 있습니다.</span><button type="button" class="btn btn-navy btn-sm">내 구매 목록에 담기</button></div>
-  <div class="sec-head"><h2>도구·자재</h2><p>참고 가격은 2026년 9월 조사 시점 값이고, 대표 상품의 후기 수는 2026년 11월 기준입니다. 실제 가격·재고·옵션은 쿠팡 상품 화면이 기준입니다.</p></div>
-  <div class="filters"><input type="search" id="mallSearch" placeholder="상품·용도·브랜드 검색" aria-label="상품 검색"><span class="count" id="mallCount"></span></div>
-  <div class="filters" id="mallCats"></div>
-  <div class="prod-grid" id="prodGrid"></div>
+  <div class="mall-sh">
+    <div>
+      <h2 id="shopTitle">전체 도구·자재</h2>
+      <p>참고 가격은 2026년 9월, 후기 수는 2026년 11월 조사 값입니다. 실제 가격·재고·옵션은 쿠팡 상품 화면이 기준입니다.</p>
+    </div>
+  </div>
+  <div class="shop-bar" id="shopBar">
+    <div class="shop-cats" id="mallCats" role="group" aria-label="카테고리"></div>
+    <div class="shop-tools">
+      <span class="shop-count" id="mallCount" aria-live="polite"></span>
+      <label class="sr-only" for="mallSort">정렬</label>
+      <select id="mallSort"><option value="base">기본순</option><option value="low">낮은 가격순</option><option value="high">높은 가격순</option><option value="name">이름순</option></select>
+    </div>
+  </div>
+  <div class="search-state" id="searchState" hidden></div>
+  <div class="prod-grid shop-grid" id="prodGrid"></div>
   <div class="more-wrap" id="mallMore" hidden><button type="button" class="btn btn-outline">더 보기</button></div>
 </div></section>
 
-<section class="section"><div class="wrap">
+<section class="section mall-rules"><div class="wrap">
   <div class="sec-head"><h2>스스로몰은 이렇게 운영합니다</h2><p>연구소의 판정 원칙은 몰에서도 그대로입니다. 수수료 때문에 판정을 바꾸지 않습니다.</p></div>
   <div class="grid grid-3">
-    <div class="box box-navy"><h3>직접 할 수 없는 공정은 팔지 않습니다</h3><p>전기 배선·분전반, 소방시설, 가스, 구조체 철거처럼 등록업체가 해야 하는 공정의 자재와 공구는 몰에 올리지 않습니다. 대신 <a href="estimate.html">견적서 검증</a>과 전문 공정 매칭으로 연결합니다.</p></div>
-    <div class="box box-navy"><h3>가격은 같고, 표시는 분명하게</h3><p>제휴 링크로 사도 구매자가 내는 가격은 같습니다. 구매 링크는 쿠팡 파트너스 제휴 링크만 쓰고, 링크마다 '제휴' 표시를 붙입니다.</p></div>
-    <div class="box box-navy"><h3>배너·자동 이동은 쓰지 않습니다</h3><p>페이지를 열기만 해도 쿠팡으로 넘어가거나 추적 스크립트가 실리는 방식은 쓰지 않습니다. 누른 링크만 쿠팡으로 이동합니다.</p></div>
-    <div class="box box-navy"><h3>상품은 판정과 데이터로 고릅니다</h3><p>추천은 판매처 후기·별점과 커뮤니티 반복 추천, 셀프 시공 적합성을 기준으로 했습니다. 수수료율은 선정 기준이 아닙니다.</p></div>
-    <div class="box box-navy"><h3>후기 많은 상품을 대표로 보여 드립니다</h3><p>품목마다 쿠팡 랭킹 상위권에서 후기와 판매가 많고 셀프 시공에 맞는 상품을 하나씩 골랐습니다. 다른 규격이나 옵션이 필요하면 '쿠팡에서 다른 상품 비교'로 같은 검색어의 결과를 볼 수 있습니다.</p></div>
-    <div class="box box-navy"><h3>주문·배송·환불은 쿠팡 기준</h3><p>스스로몰은 판매 당사자가 아닙니다. 주문, 결제, 배송, 교환·환불은 쿠팡과 해당 판매자의 정책을 따릅니다. 자세한 내용은 <a href="terms.html">이용약관</a>에 있습니다.</p></div>
+    <div class="rule"><h3>직접 할 수 없는 공정은 팔지 않습니다</h3><p>전기 배선·분전반, 소방시설, 가스, 구조체 철거처럼 등록업체가 해야 하는 공정의 자재와 공구는 몰에 올리지 않습니다. 대신 <a href="estimate.html">견적서 검증</a>과 전문 공정 매칭으로 연결합니다.</p></div>
+    <div class="rule"><h3>가격은 같고, 표시는 분명하게</h3><p>제휴 링크로 사도 구매자가 내는 가격은 같습니다. 구매 링크는 쿠팡 파트너스 제휴 링크만 쓰고, 링크마다 '제휴' 표시를 붙입니다.</p></div>
+    <div class="rule"><h3>배너·자동 이동은 쓰지 않습니다</h3><p>페이지를 열기만 해도 쿠팡으로 넘어가거나 추적 스크립트가 실리는 방식은 쓰지 않습니다. 누른 링크만 쿠팡으로 이동합니다.</p></div>
+    <div class="rule"><h3>상품은 판정과 데이터로 고릅니다</h3><p>추천은 판매처 후기·별점과 커뮤니티 반복 추천, 셀프 시공 적합성을 기준으로 했습니다. 수수료율은 선정 기준이 아닙니다.</p></div>
+    <div class="rule"><h3>후기 많은 상품을 대표로 보여 드립니다</h3><p>품목마다 쿠팡 랭킹 상위권에서 후기와 판매가 많고 셀프 시공에 맞는 상품을 하나씩 골랐습니다. 다른 규격이나 옵션이 필요하면 '쿠팡에서 다른 상품 비교'로 같은 검색어의 결과를 볼 수 있습니다.</p></div>
+    <div class="rule"><h3>주문·배송·환불은 쿠팡 기준</h3><p>스스로몰은 판매 당사자가 아닙니다. 주문, 결제, 배송, 교환·환불은 쿠팡과 해당 판매자의 정책을 따릅니다. 자세한 내용은 <a href="terms.html">이용약관</a>에 있습니다.</p></div>
   </div>
 </div></section>
 
@@ -105,6 +165,6 @@
 </footer>
 <script>window.SSR=window.SSR||{};window.SSR.contactEmail="spaceblank0100@gmail.com";</script>
 <script src="assets/js/main.js?v=20261024"></script>
-<script src="assets/js/mall-data.js?v=20261118"></script><script src="assets/js/mall-links.js?v=20261118"></script><script src="assets/js/mall-picks.js?v=20261118"></script><script src="assets/js/aff.js?v=20261118"></script><script src="assets/js/mall.js?v=20261118"></script>
+<script src="assets/js/mall-data.js?v=20261118"></script><script src="assets/js/mall-links.js?v=20261118"></script><script src="assets/js/mall-picks.js?v=20261118"></script><script src="assets/js/aff.js?v=20261118"></script><script src="assets/js/mall.js?v=20261118b"></script>
 </body>
 </html>

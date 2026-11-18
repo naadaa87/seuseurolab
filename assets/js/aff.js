@@ -49,8 +49,8 @@
         : '<a class="buy-btn ' + cls + '" data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(plain) + '" target="_blank" rel="noopener nofollow">' + label + '</a>';
     };
     var sAff = S.aff[S.affKey('coupang', q)];
-    if (x) h += btn('buy-coupang buy-pick', '@' + q, '', pickUrl(q), '쿠팡에서 이 상품 보기');
-    h += btn(x ? 'buy-alt' : 'buy-coupang', q, S.searchUrl('coupang', q), sAff, x ? '쿠팡에서 다른 상품 비교' : '쿠팡에서 찾기');
+    if (x) h += btn('buy-coupang buy-pick', '@' + q, '', pickUrl(q), '<span class="lb-l">쿠팡에서 이 상품 보기</span><span class="lb-s">쿠팡에서 보기</span>');
+    h += btn(x ? 'buy-alt' : 'buy-coupang', q, S.searchUrl('coupang', q), sAff, x ? '<span class="lb-l">쿠팡에서 다른 상품 비교</span><span class="lb-s">다른 상품 비교</span>' : '쿠팡에서 찾기');
     return h + '</div>';
   };
   /* 대표 상품 사진 */
