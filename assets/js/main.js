@@ -37,6 +37,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         if (res.ok && res.body && res.body.ok) {
+          if (SSR.track) SSR.track('lead', data.service || data.kind || 'contact');
           form.reset();
           show('ok', '<strong>접수됐습니다.</strong> 영업일 기준 1일 안에 답변드립니다. 급한 건이면 <a href="mailto:' + SSR.contactEmail + '">' + SSR.contactEmail + '</a>로 알려주세요.');
         } else {

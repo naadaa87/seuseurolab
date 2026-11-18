@@ -35,7 +35,49 @@ CREATE TABLE IF NOT EXISTS aff_clicks (
   k           TEXT NOT NULL,                        -- 누른 링크 키
   aff         INTEGER NOT NULL DEFAULT 0,           -- 제휴 링크였는지
   pid         TEXT,
-  page        TEXT                                  -- 개인 식별 정보는 저장하지 않음
+  page        TEXT,                                 -- 개인 식별 정보는 저장하지 않음
+  sid         TEXT                                  -- 탭 세션 값 (방문 통계와 이어 클릭률 계산). 예전 표에는 함수가 자동으로 추가
 );
 CREATE INDEX IF NOT EXISTS idx_aff_clicks_created ON aff_clicks(created_at);
 CREATE INDEX IF NOT EXISTS idx_aff_clicks_k ON aff_clicks(k);
+
+-- ── 방문 통계·KPI (함수가 처음 호출될 때 자동으로 만들어집니다. 관리 화면 KPI 탭에서 봅니다) ──
+-- 이름·연락처·IP 주소·쿠키는 저장하지 않습니다. 자세한 방식은 functions/_lib/stats.js 첫머리 참고
+CREATE TABLE IF NOT EXISTS pv (                     -- 페이지 보기
+  id    TEXT PRIMARY KEY,                           -- 페이지 보기 값 (무작위)
+  ts    TEXT NOT NULL DEFAULT (datetime('now')),    -- UTC
+  day   TEXT NOT NULL,                              -- 한국 날짜 YYYY-MM-DD
+  path  TEXT NOT NULL,                              -- /mall, /kit-paint …
+  vid   TEXT,                                       -- 일별 익명 방문자 값 (그날의 무작위 값+IP+브라우저 정보의 해시. 무작위 값은 이틀 뒤 삭제)
+  sid   TEXT,                                       -- 탭 세션 값
+  ns    INTEGER NOT NULL DEFAULT 0,                 -- 방문의 첫 페이지 여부
+  ret   INTEGER NOT NULL DEFAULT 0,                 -- 전에 와 본 브라우저 여부
+  src   TEXT,                                       -- 유입 경로 (naver, google, direct …) — 첫 페이지만
+  ref   TEXT,                                       -- 들어온 사이트 주소(호스트만) — 첫 페이지만
+  dev   TEXT,                                       -- m 모바일 · d PC · t 태블릿
+  dur   INTEGER NOT NULL DEFAULT 0,                 -- 머문 시간(초, 최대 1800)
+  scr   INTEGER NOT NULL DEFAULT 0                  -- 최대 스크롤 %
+);
+CREATE INDEX IF NOT EXISTS idx_pv_day ON pv(day);
+CREATE INDEX IF NOT EXISTS idx_pv_sid ON pv(sid);
+CREATE TABLE IF NOT EXISTS ev (                     -- 사이트 안 행동 (검색, 구매 목록 담기, 진단 완료 등)
+  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts    TEXT NOT NULL DEFAULT (datetime('now')),
+  day   TEXT NOT NULL,
+  sid   TEXT,
+  path  TEXT,
+  name  TEXT NOT NULL,                              -- search / search_none / add / add_all / kit_all / list_copy / list_share / diag_done / lead
+  val   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ev_day ON ev(day, name);
+CREATE TABLE IF NOT EXISTS pv_salt (day TEXT PRIMARY KEY, salt TEXT NOT NULL);   -- 그날의 무작위 값 (이틀 뒤 삭제)
+CREATE TABLE IF NOT EXISTS cp_reports (             -- 쿠팡 파트너스 일별 실적 (관리 화면에서 입력하거나 API로 받아 옴)
+  day         TEXT PRIMARY KEY,
+  clicks      INTEGER,
+  orders      INTEGER,
+  cancels     INTEGER,
+  gmv         INTEGER,                              -- 주문 금액(원)
+  commission  INTEGER,                              -- 수익(원)
+  src         TEXT,                                 -- manual / csv / api
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);

@@ -185,6 +185,7 @@
     var sum = document.getElementById('reportSummary');
     if (sum) sum.value = toText(r);
     try { localStorage.setItem('ssr_last_diagnosis', JSON.stringify({ answers: answers, result: slim(r), at: new Date().toISOString() })); } catch (e) {}
+    if (window.SSR.track) window.SSR.track('diag_done', r.ind && r.ind.label);
   }
 
   function slim(r) {

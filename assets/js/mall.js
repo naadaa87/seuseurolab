@@ -143,11 +143,13 @@
   }
   function choose(o) {
     closePop();
+    var typed = input.value.trim();
+    if (S.track && (typed || o.kind === 'all')) S.track('search', (typed || o.val).slice(0, 40));
     if (o.kind === 'kit') { location.href = 'kit-' + o.val + '.html'; return; }
     if (o.kind === 'cat') { input.value = ''; applyShop({ cat: o.val, text: '' }); goTo('products'); return; }
     if (o.kind === 'prod') { var p = byId[o.val]; input.value = shortName(p.name); applyShop({ cat: 'all', text: '', only: p.id }); goTo('products'); return; }
     var r = search(o.val);
-    if (!r.prods.length) { location.href = 'catalog.html?q=' + encodeURIComponent(o.val); return; }
+    if (!r.prods.length) { if (S.track) S.track('search_none', String(o.val).slice(0, 40)); location.href = 'catalog.html?q=' + encodeURIComponent(o.val); return; }
     applyShop({ cat: 'all', text: o.val }); goTo('products');
   }
   var tmr;
@@ -236,6 +238,7 @@
     var l = S.buylist.all(), have = {}, added = 0; l.forEach(function (x) { have[x.q] = 1; });
     k.items.forEach(function (id) { var p = byId[id]; if (p && !have[S.norm(p.q)]) { l.push({ q: S.norm(p.q), name: p.name, note: k.name }); have[S.norm(p.q)] = 1; added++; } });
     S.buylist.save(l);
+    if (S.track) S.track('kit_all', k.slug);
     $$('[data-kit-add="' + k.slug + '"]').forEach(function (x) { x.textContent = '모두 담김'; x.classList.add('is-done'); });
     toast(added ? k.name + ' 구성 ' + added + '개를 구매 목록에 담았습니다' : '이미 모두 구매 목록에 있습니다');
   });

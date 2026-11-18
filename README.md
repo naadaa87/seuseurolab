@@ -30,7 +30,7 @@
 ├── pricing.html          상품·가격
 ├── about.html            연구소 소개
 ├── contact.html          문의·상담 · 파트너 등록
-├── admin.html            관리자 — 스스로몰 제휴 링크 등록·클릭 통계·접수 내역 CSV
+├── admin.html            관리자 — KPI(방문·클릭·구매 전환), 스스로몰 제휴 링크 등록, 클릭 통계, 접수 내역 CSV
 ├── privacy.html / terms.html   개인정보처리방침 · 이용약관
 ├── 404.html
 ├── assets/
@@ -48,6 +48,9 @@
 │   ├── js/aff.js         구매 버튼·제휴 링크 적용·'제휴' 표시·구매 목록·클릭 기록
 │   ├── js/mall.js        스스로몰 메인 렌더링
 │   ├── js/admin.js       관리자 화면
+│   ├── js/admin-kpi.js   관리자 KPI 탭 (그래프·표·쿠팡 실적 입력)
+│   ├── js/track.js       방문 통계 수집 (관리자 화면 제외 모든 페이지, 쿠키·IP 저장 없음)
+│   ├── css/admin.css     관리자 KPI 탭 스타일
 │   └── img/              로고(SVG), 최적화된 사진
 ├── functions/api/        Cloudflare Pages Functions (서버 API)
 │   ├── lead.js           POST /api/lead   — 문의·리포트·견적검증 접수 → D1 저장
@@ -56,7 +59,12 @@
 │   ├── aff-links.js      GET/POST /api/aff-links — 스스로몰 제휴 링크 조회·저장
 │   ├── click.js          POST /api/click — 구매 버튼 클릭 기록 (개인 식별 정보 없음)
 │   ├── aff-stats.js      GET  /api/aff-stats — 최근 30일 클릭 통계 (관리자)
-│   └── coupang-deeplink.js POST /api/coupang-deeplink — 쿠팡 파트너스 API 일괄 변환 (관리자)
+│   ├── coupang-deeplink.js POST /api/coupang-deeplink — 쿠팡 파트너스 API 일괄 변환 (관리자)
+│   ├── pv.js             POST /api/pv — 방문·체류·행동 기록 (track.js가 보냄)
+│   ├── kpi.js            GET  /api/kpi?from=&to= — KPI 집계 (관리자)
+│   ├── cp-report.js      GET/POST /api/cp-report — 쿠팡 파트너스 일별 실적 입력·API 동기화 (관리자)
+│   └── popular.js        GET  /api/popular — 스스로몰 '자주 찾는 제품' 순서용 검색어별 클릭 합계
+├── functions/_lib/stats.js 방문 통계 공통 함수 (주소로 열리지 않음)
 ├── docs/스스로몰_운영가이드.md  제휴 프로그램·링크 등록·표시 의무·성과 보는 법
 ├── schema.sql            D1 데이터베이스 스키마
 ├── wrangler.toml         (선택) D1 바인딩 설정
@@ -128,6 +136,16 @@ GitHub에서 파일을 열어 연필 아이콘으로 수정 → Commit 하면 Cl
 5. 가끔 **링크 파일 내보내기**로 `mall-links.js`를 받아 `assets/js/` 에 덮어써 두면 D1 없이도 링크가 유지됩니다.
 
 표시 의무, 금지 행위, 대표 상품 고르는 기준은 `docs/스스로몰_운영가이드.md`에 정리했습니다.
+
+## 3-2. KPI 보기 (관리 화면 → KPI 탭)
+
+- **방문**: 방문자(하루 단위 순방문자 합계), 방문(세션), 페이지뷰, 평균 체류시간, 이탈률. 바로 앞 같은 길이 기간과 비교합니다.
+- **쿠팡 파트너스 성과**: 쿠팡 링크 클릭, 쿠팡 클릭률(쿠팡 링크를 누른 방문 ÷ 방문), 구매 전환(주문 수), 구매 전환율(주문 ÷ 쿠팡 집계 클릭), 수익.
+- **그 밖에**: 일별 추이, 구매까지의 흐름, 유입 경로, 기기, 시간대, 페이지별·키트별 성과, 많이 누른 상품, 많이 찾은 검색어와 결과가 없던 검색어, 구매 목록에 많이 담은 품목.
+- **구매 전환·수익은 쿠팡 실적을 넣어야 계산됩니다.** 구매는 쿠팡 안에서 일어나 사이트가 볼 수 없기 때문입니다. 쿠팡 파트너스 → 리포트에서 날짜별 표를 복사해 KPI 탭 맨 아래 '쿠팡 실적 입력'에 붙여넣습니다. 최종 승인 후 API 키(`COUPANG_ACCESS_KEY`, `COUPANG_SECRET_KEY`)를 넣으면 '쿠팡에서 불러오기'로 자동으로 채웁니다.
+- **내 방문 제외**: KPI 탭 아래 버튼을 누르면 그 브라우저의 방문·클릭은 통계에서 빠집니다. 휴대폰 등 쓰는 기기마다 한 번씩 켜 둡니다.
+- 수집 방식: 쿠키를 쓰지 않고 IP 주소도 저장하지 않습니다. 같은 날 중복 방문만 걸러 내는 일별 익명 값을 쓰고, 그 값을 만드는 무작위 값은 이틀 뒤 지웁니다. 검색 로봇과 추적 거부(Do Not Track·GPC)를 켠 브라우저는 세지 않습니다. 기록은 약 13개월 보관합니다.
+- 표는 함수가 처음 호출될 때 자동으로 만들어지므로 D1 콘솔에서 따로 실행할 것은 없습니다(`schema.sql`에 구조를 적어 두었습니다).
 
 ---
 

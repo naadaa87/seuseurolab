@@ -111,9 +111,10 @@
     var k = S.affKey(a.getAttribute('data-p'), a.getAttribute('data-q'));
     var u = S.aff[k];
     if (u && a.getAttribute('href') !== u) a.setAttribute('href', u);
+    if (S.trackSelf) return; // 관리자 '내 방문 제외'
     try {
       var holder = a.closest('[data-pid]');
-      var body = JSON.stringify({ k: k, aff: u ? 1 : 0, pid: holder ? holder.getAttribute('data-pid') : '', page: location.pathname });
+      var body = JSON.stringify({ k: k, aff: u ? 1 : 0, pid: holder ? holder.getAttribute('data-pid') : '', page: location.pathname, sid: S.sid ? S.sid() : '' });
       if (navigator.sendBeacon) navigator.sendBeacon('/api/click', new Blob([body], { type: 'application/json' }));
     } catch (err) {}
   }, true);
@@ -154,7 +155,7 @@
     if (b) {
       var q = b.getAttribute('data-add-q');
       if (S.buylist.has(q)) S.buylist.remove(q);
-      else S.buylist.add({ q: q, name: b.getAttribute('data-add-name'), note: b.getAttribute('data-add-note') });
+      else { S.buylist.add({ q: q, name: b.getAttribute('data-add-name'), note: b.getAttribute('data-add-note') }); if (S.track) S.track('add', q); }
       return;
     }
     var all = e.target.closest ? e.target.closest('[data-add-all]') : null;
@@ -165,6 +166,7 @@
         var q2 = x.getAttribute('data-add-q'); if (!have[q2]) { l.push({ q: q2, name: x.getAttribute('data-add-name'), note: x.getAttribute('data-add-note') || '' }); have[q2] = 1; }
       });
       S.buylist.save(l); openPanel();
+      if (S.track) S.track('add_all', location.pathname.replace(/^\/|\.html$/g, '') || 'home');
     }
   });
 
@@ -198,11 +200,13 @@
           t.push('   쿠팡: ' + (pickUrl(x.q) || S.aff[S.affKey('coupang', x.q)] || S.searchUrl('coupang', x.q)));
         });
         S.copy ? S.copy(t.join('\n'), act) : null;
+        if (S.track && l.length) S.track('list_copy', l.length);
       }
       if (k === 'share') {
         var data = l.map(function (x) { return [x.name, x.q, x.note || '']; });
         var url = location.origin + '/mall.html?list=' + encodeURIComponent(JSON.stringify(data));
         S.copy ? S.copy(url, act) : null;
+        if (S.track && l.length) S.track('list_share', l.length);
       }
     });
   }

@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css?v=20261118c">
+<link rel="stylesheet" href="assets/css/admin.css?v=20261118d">
 
 <meta name="robots" content="noindex,nofollow">
 </head>
@@ -35,16 +36,128 @@
 </header>
 <main>
 
-<section class="page-hero"><div class="wrap"><div class="kicker">관리자</div><h1>스스로연구소 관리</h1><p class="lead">스스로몰 제휴 링크 등록, 구매 링크 클릭 통계, 상담 접수 내역 다운로드. 이 페이지는 검색에 노출되지 않습니다.</p></div></section>
+<section class="page-hero"><div class="wrap"><div class="kicker">관리자</div><h1>스스로연구소 관리</h1><p class="lead">방문·클릭·구매 전환 KPI, 스스로몰 제휴 링크 등록, 상담 접수 내역 다운로드. 이 페이지는 검색에 노출되지 않습니다.</p></div></section>
 <section class="section"><div class="wrap">
   <div class="box mb-24">
     <div class="adm-bar" style="margin-bottom:6px"><label for="admKey" style="font-weight:600;color:var(--navy)">관리 키</label><input type="password" id="admKey" placeholder="Cloudflare 환경변수 ADMIN_KEY 값" style="min-width:280px" autocomplete="off"><button type="button" class="btn btn-navy btn-sm" id="admKeySave">확인</button><a class="btn btn-outline btn-sm" href="api/health" target="_blank" rel="noopener">연결 상태</a></div>
     <p class="text-small mb-0" id="admState"></p>
     <p class="text-small text-muted mb-0">관리 키는 이 탭에만 기억되고, 탭을 닫으면 지워집니다.</p>
   </div>
-  <div class="adm-tabs" role="tablist"><button type="button" data-tab="links" class="is-on" aria-selected="true">스스로몰 링크</button><button type="button" data-tab="stats" aria-selected="false">클릭 통계</button><button type="button" data-tab="leads" aria-selected="false">접수 내역</button></div>
+  <div class="adm-tabs" role="tablist"><button type="button" data-tab="kpi" class="is-on" aria-selected="true">KPI</button><button type="button" data-tab="links" aria-selected="false">스스로몰 링크</button><button type="button" data-tab="stats" aria-selected="false">클릭 통계</button><button type="button" data-tab="leads" aria-selected="false">접수 내역</button></div>
 
-  <div class="adm-pane" id="pane-links">
+  <div class="adm-pane" id="pane-kpi">
+    <div class="kpi-filter">
+      <div class="seg kpi-seg" role="group" aria-label="기간">
+        <button type="button" data-range="today" aria-pressed="false">오늘</button><button type="button" data-range="yday" aria-pressed="false">어제</button><button type="button" data-range="7" aria-pressed="false">7일</button><button type="button" data-range="30" aria-pressed="true">30일</button><button type="button" data-range="90" aria-pressed="false">90일</button><button type="button" data-range="custom" aria-pressed="false">직접 선택</button>
+      </div>
+      <span class="kpi-custom" id="kCustom" hidden><input type="date" id="kFrom" aria-label="시작일"><span aria-hidden="true">–</span><input type="date" id="kTo" aria-label="종료일"><button type="button" class="btn btn-navy btn-sm" id="kApply">적용</button></span>
+      <button type="button" class="btn btn-outline btn-sm" id="kReload">새로고침</button>
+      <span class="kpi-live" id="kLive" hidden></span>
+    </div>
+    <p class="kpi-range" id="kRange"></p>
+    <div class="kpi-notes" id="kNotes"></div>
+
+    <div class="kpi-body" id="kBody">
+      <h2 class="kpi-h">방문</h2>
+      <div class="kpi-tiles" id="kTilesVisit"></div>
+      <h2 class="kpi-h">쿠팡 파트너스 성과</h2>
+      <div class="kpi-tiles" id="kTilesCp"></div>
+      <dl class="kpi-mini" id="kMini"></dl>
+
+      <div class="kpi-cols kpi-cols-21">
+        <section class="kpi-card" aria-labelledby="kTrendH">
+          <div class="kpi-card-head"><h3 id="kTrendH">일별 추이</h3>
+            <div class="seg seg-sm" role="group" aria-label="추이 지표" id="kTrendSeg"><button type="button" data-m="v" aria-pressed="true">방문자</button><button type="button" data-m="pv" aria-pressed="false">페이지뷰</button><button type="button" data-m="clk" aria-pressed="false">쿠팡 클릭</button><button type="button" data-m="orders" aria-pressed="false">주문</button><button type="button" data-m="commission" aria-pressed="false">수익</button></div>
+          </div>
+          <div class="kpi-legend" id="kTrendLegend"></div>
+          <div class="kpi-chart" id="kTrend"></div>
+          <details class="kpi-tbl-toggle"><summary>날짜별 표로 보기</summary><div class="tbl-wrap"><table class="tbl kpi-tbl"><thead><tr><th>날짜</th><th class="r">방문자</th><th class="r">방문</th><th class="r">페이지뷰</th><th class="r">쿠팡 클릭</th><th class="r">상담 접수</th><th class="r">쿠팡 주문</th><th class="r">수익</th></tr></thead><tbody id="kDaily"></tbody></table></div></details>
+        </section>
+        <section class="kpi-card" aria-labelledby="kFunnelH">
+          <div class="kpi-card-head"><h3 id="kFunnelH">구매까지의 흐름</h3></div>
+          <p class="kpi-sub">비율은 전체 방문 대비입니다. 주문은 쿠팡 파트너스 리포트 값입니다.</p>
+          <div class="kpi-meters" id="kFunnel"></div>
+        </section>
+      </div>
+
+      <div class="kpi-cols kpi-cols-3">
+        <section class="kpi-card" aria-labelledby="kSrcH"><div class="kpi-card-head"><h3 id="kSrcH">유입 경로</h3></div><p class="kpi-sub">방문 수, 전체 대비 비율, 그 경로로 온 방문 중 쿠팡 링크를 누른 비율</p><div class="kpi-meters" id="kSources"></div></section>
+        <section class="kpi-card" aria-labelledby="kDevH"><div class="kpi-card-head"><h3 id="kDevH">기기</h3></div><p class="kpi-sub">방문 수, 전체 대비 비율, 쿠팡 클릭률</p><div class="kpi-meters" id="kDevices"></div></section>
+        <section class="kpi-card" aria-labelledby="kHourH"><div class="kpi-card-head"><h3 id="kHourH">시간대별 페이지뷰</h3></div><p class="kpi-sub">한국 시간 기준</p><div class="kpi-chart kpi-chart-sm" id="kHours"></div></section>
+      </div>
+
+      <section class="kpi-card kpi-wide" aria-labelledby="kPagesH">
+        <div class="kpi-card-head"><h3 id="kPagesH">페이지별 성과</h3>
+          <label class="kpi-sort">정렬 <select id="kPageSort"><option value="pv">페이지뷰</option><option value="uv">방문자</option><option value="dur">평균 체류</option><option value="clk">쿠팡 클릭</option><option value="ctr">클릭률</option></select></label>
+        </div>
+        <div class="tbl-wrap"><table class="tbl kpi-tbl"><thead><tr><th>페이지</th><th class="r">페이지뷰</th><th class="r">방문자</th><th class="r">평균 체류</th><th class="r">스크롤</th><th class="r">첫 페이지로 진입</th><th class="r">진입 후 바로 나감</th><th class="r">쿠팡 클릭</th><th class="r">클릭률</th></tr></thead><tbody id="kPages"></tbody></table></div>
+        <p class="kpi-more"><button type="button" class="btn btn-outline btn-sm" id="kPagesMore" hidden>전체 보기</button></p>
+      </section>
+
+      <section class="kpi-card kpi-wide" aria-labelledby="kKitsH">
+        <div class="kpi-card-head"><h3 id="kKitsH">공정별 키트 성과</h3></div>
+        <div class="tbl-wrap"><table class="tbl kpi-tbl"><thead><tr><th>키트</th><th class="r">페이지뷰</th><th class="r">방문자</th><th class="r">평균 체류</th><th class="r">쿠팡 클릭</th><th class="r">클릭률</th><th class="r">구성 모두 담기</th></tr></thead><tbody id="kKits"></tbody></table></div>
+      </section>
+
+      <h2 class="kpi-h">가장 인기 있는 정보</h2>
+      <div class="kpi-cols kpi-cols-3">
+        <section class="kpi-card" aria-labelledby="kProdH"><div class="kpi-card-head"><h3 id="kProdH">많이 누른 상품</h3></div><ol class="kpi-rank" id="kProducts"></ol></section>
+        <section class="kpi-card" aria-labelledby="kSearchH"><div class="kpi-card-head"><h3 id="kSearchH">많이 찾은 검색어</h3></div><ol class="kpi-rank" id="kSearch"></ol>
+          <h4 class="kpi-h4">찾았지만 상품이 없던 검색어</h4><p class="kpi-sub">스스로몰에 추가할 품목 후보입니다.</p><ol class="kpi-rank" id="kSearchNone"></ol></section>
+        <section class="kpi-card" aria-labelledby="kAddH"><div class="kpi-card-head"><h3 id="kAddH">구매 목록에 많이 담은 품목</h3></div><ol class="kpi-rank" id="kAdds"></ol></section>
+      </div>
+
+      <section class="kpi-card kpi-wide kpi-cp" id="kCp" aria-labelledby="kCpH">
+        <div class="kpi-card-head"><h3 id="kCpH">쿠팡 실적 입력</h3><span class="kpi-cp-state" id="kCpState"></span></div>
+        <p class="kpi-sub">구매는 쿠팡 안에서 일어나서 이 사이트가 직접 볼 수 없습니다. 쿠팡 파트너스 → 리포트에서 날짜별 실적을 복사해 아래에 붙여넣으면 저장되고, 위의 구매 전환·수익 지표가 계산됩니다. 최종 승인 후 API 키를 등록하면 '쿠팡에서 불러오기'로 자동으로 채웁니다.</p>
+        <div class="kpi-cols kpi-cols-2">
+          <div>
+            <h4 class="kpi-h4">리포트 붙여넣기</h4>
+            <div class="field"><textarea id="kCpPaste" rows="6" placeholder="날짜&#9;클릭수&#9;주문수&#9;취소수&#9;주문금액&#9;수익&#10;2026-11-17&#9;120&#9;3&#9;0&#9;86,400&#9;2,592"></textarea></div>
+            <p class="text-small text-muted mt-8" id="kCpPreview">첫 줄에 '날짜, 클릭, 주문, 취소, 금액, 수익' 같은 제목이 있으면 열 순서를 알아서 맞춥니다. 제목이 없으면 위 예시 순서로 읽습니다.</p>
+            <p class="mt-8 mb-0"><button type="button" class="btn btn-navy btn-sm" id="kCpSave">붙여넣은 실적 저장</button> <button type="button" class="btn btn-outline btn-sm" id="kCpSync">쿠팡에서 불러오기 (API)</button></p>
+          </div>
+          <div>
+            <h4 class="kpi-h4">하루씩 입력</h4>
+            <div class="kpi-form">
+              <label>날짜<input type="date" id="kCpDay"></label>
+              <label>클릭<input type="number" min="0" inputmode="numeric" id="kCpClicks"></label>
+              <label>주문<input type="number" min="0" inputmode="numeric" id="kCpOrders"></label>
+              <label>취소<input type="number" min="0" inputmode="numeric" id="kCpCancels"></label>
+              <label>주문 금액(원)<input type="number" min="0" inputmode="numeric" id="kCpGmv"></label>
+              <label>수익(원)<input type="number" min="0" inputmode="numeric" id="kCpComm"></label>
+            </div>
+            <p class="mt-8 mb-0"><button type="button" class="btn btn-outline btn-sm" id="kCpOne">이 날짜 저장</button></p>
+          </div>
+        </div>
+        <pre class="adm-log" id="kCpLog" hidden></pre>
+        <div class="tbl-wrap mt-16"><table class="tbl kpi-tbl"><thead><tr><th>날짜</th><th class="r">클릭</th><th class="r">주문</th><th class="r">취소</th><th class="r">주문 금액</th><th class="r">수익</th><th>입력 방식</th><th></th></tr></thead><tbody id="kCpRows"></tbody></table></div>
+        <p class="kpi-more"><button type="button" class="btn btn-outline btn-sm" id="kCpMore" hidden></button></p>
+      </section>
+
+      <details class="kpi-defs">
+        <summary>지표는 이렇게 계산합니다</summary>
+        <dl>
+          <dt>방문자</dt><dd>하루 단위로 같은 사람을 한 번만 셉니다. 기간 합계는 날마다 센 값을 더한 것이라 같은 사람이 이틀 오면 2로 셉니다. 사람을 식별하는 값은 저장하지 않습니다.</dd>
+          <dt>방문</dt><dd>한 브라우저 탭에서 30분 안에 이어진 페이지 보기 묶음입니다.</dd>
+          <dt>평균 체류시간</dt><dd>방문 한 번 동안 화면이 실제로 보이던 시간의 평균입니다. 5분 넘게 아무 조작이 없으면 그 뒤는 세지 않습니다. 페이지 평균 체류는 페이지 한 쪽 기준입니다.</dd>
+          <dt>이탈률</dt><dd>참여하지 않은 방문의 비율입니다. 2쪽 이상 봤거나, 10초 이상 머물렀거나, 쿠팡 링크를 누른 방문을 참여 방문으로 봅니다. 상품 페이지에서 바로 쿠팡으로 넘어간 방문은 이탈이 아닙니다.</dd>
+          <dt>쿠팡 클릭률</dt><dd>쿠팡 링크를 한 번이라도 누른 방문 ÷ 전체 방문. 페이지별 클릭률은 쿠팡 클릭 ÷ 그 페이지의 페이지뷰입니다.</dd>
+          <dt>구매 전환·전환율</dt><dd>쿠팡 파트너스 리포트의 주문 수와, 주문 수 ÷ 쿠팡이 집계한 클릭 수입니다. 쿠팡 클릭 값을 입력하지 않은 기간은 이 사이트에서 센 쿠팡 클릭으로 나눕니다. 쿠팡은 링크를 누른 뒤 24시간 안의 다른 상품 구매도 실적에 넣습니다.</dd>
+          <dt>클릭당 수익(EPC)</dt><dd>수익 ÷ 쿠팡이 집계한 클릭 수.</dd>
+          <dt>제외되는 방문</dt><dd>검색 로봇, 브라우저의 추적 거부(Do Not Track·GPC)를 켠 방문, 이 화면에서 '내 방문 제외'를 켠 브라우저.</dd>
+        </dl>
+      </details>
+    </div>
+
+    <div class="kpi-self box mt-32">
+      <h3>내 방문 제외</h3>
+      <p class="text-small">운영자가 사이트를 둘러본 기록이 통계에 섞이지 않게 합니다. 이 브라우저에만 적용되므로 휴대폰 등 다른 기기에서도 이 화면을 열어 한 번씩 켜 주세요.</p>
+      <p class="mt-16 mb-0"><button type="button" class="btn btn-outline btn-sm" id="kSelf" aria-pressed="false"></button></p>
+    </div>
+  </div>
+
+  <div class="adm-pane" id="pane-links" hidden>
     <div class="grid grid-2 mb-24">
       <div class="box box-accent"><h3>링크 등록 순서</h3><ol class="mt-16 text-small" style="margin-bottom:0"><li>쿠팡 파트너스에 가입하고 사이트(이 홈페이지 주소)를 채널로 등록합니다.</li><li>아래 표에서 <strong>검색 URL 복사</strong> → 쿠팡 파트너스 <strong>링크 생성</strong>에 붙여넣기 → 만들어진 <code>link.coupang.com</code> 주소를 칸에 붙여넣습니다.</li><li><strong>변경 저장</strong>을 누르면 몰·키트·자료실의 같은 검색어 버튼에 바로 적용되고 '제휴' 표시가 붙습니다.</li><li>최종 승인 뒤 API 키를 받으면 <strong>쿠팡 API로 일괄 변환</strong>으로 한 번에 처리할 수 있습니다.</li></ol></div>
       <div class="box"><h3>무엇부터 만들까</h3><p class="text-small">범위를 '스스로몰 상품'으로 두고 정렬을 '클릭 많은 순'으로 바꾸면, 실제로 많이 누르는 링크부터 보입니다. 키트에 들어간 상품이 위쪽에 먼저 정렬됩니다. 스스로몰 카드의 큰 버튼은 '대표 상품 링크', 작은 버튼은 '검색 결과 링크'를 씁니다. 링크 종류를 바꿔 각각 관리합니다.</p></div>
@@ -97,7 +210,7 @@
   </div>
 </footer>
 <script>window.SSR=window.SSR||{};window.SSR.contactEmail="spaceblank0100@gmail.com";</script>
-<script src="assets/js/main.js?v=20261024"></script>
-<script src="assets/js/catalog-data.js?v=20261024"></script><script src="assets/js/mall-data.js?v=20261118"></script><script src="assets/js/mall-links.js?v=20261118"></script><script src="assets/js/mall-picks.js?v=20261118"></script><script src="assets/js/aff.js?v=20261118c"></script><script src="assets/js/admin.js?v=20261118"></script>
+<script src="assets/js/main.js?v=20261118d"></script>
+<script src="assets/js/catalog-data.js?v=20261024"></script><script src="assets/js/mall-data.js?v=20261118"></script><script src="assets/js/mall-links.js?v=20261118"></script><script src="assets/js/mall-picks.js?v=20261118"></script><script src="assets/js/aff.js?v=20261118d"></script><script src="assets/js/admin.js?v=20261118d"></script><script src="assets/js/admin-kpi.js?v=20261118d"></script>
 </body>
 </html>

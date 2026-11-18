@@ -13,12 +13,13 @@
     return fetch(path, opt).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'HTTP ' + r.status }; }).then(function (j) { j._status = r.status; return j; }); });
   }
 
+  S.adminApi = api; S.adminKey = key;
   /* ---------- 관리 키 ---------- */
   $('#admKey').value = key();
   function checkKey() {
     if (!key()) { $('#admState').textContent = '관리 키를 입력하세요.'; return; }
     api('/api/aff-stats').then(function (j) {
-      if (j.ok) { $('#admState').textContent = '확인됨 · 최근 30일 클릭 ' + j.total + '회 (제휴 ' + j.affClicks + '회)'; stats = j; renderLinks(); renderStats(); }
+      if (j.ok) { $('#admState').textContent = '확인됨 · 최근 30일 쿠팡 링크 클릭 ' + j.total + '회'; stats = j; renderLinks(); renderStats(); document.dispatchEvent(new CustomEvent('ssr:adminkey')); }
       else if (j._status === 403) $('#admState').textContent = '관리 키가 맞지 않습니다. Cloudflare 환경변수 ADMIN_KEY 값을 확인하세요.';
       else if (j.error === 'no-db') $('#admState').textContent = '데이터베이스(D1)가 아직 연결되지 않았습니다. README 3장을 참고하세요.';
       else $('#admState').textContent = '서버 응답: ' + (j.error || j._status);
