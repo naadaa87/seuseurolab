@@ -52,6 +52,8 @@
 
   var links = {}, stats = { top: [] }, dirty = {};
   var st0 = window.SSR_AFF_STATIC || {}; Object.keys(st0).forEach(function (k) { if (st0[k]) links[k] = st0[k]; });
+  /* 대표 상품 링크(mall-picks.js)도 등록된 링크로 보여 줍니다 */
+  Object.keys(S.picks || {}).forEach(function (q) { var x = S.picks[q]; if (x && x.u && !links['coupang:@' + q]) links['coupang:@' + q] = x.u; });
   function loadLinks() {
     return fetch('/api/aff-links?t=' + Date.now()).then(function (r) { return r.json(); }).then(function (j) {
       if (j.ok) { Object.keys(j.links).forEach(function (k) { links[k] = j.links[k]; }); }

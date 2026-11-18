@@ -43,15 +43,21 @@
     q = norm(q);
     if (!q) return '';
     var x = PK[q] && pickUrl(q) ? PK[q] : null, h = '<div class="buy">';
-    if (x) h += '<a class="buy-btn buy-coupang buy-pick" data-p="coupang" data-q="@' + esc(q) + '" href="' + esc(pickUrl(q)) + '" target="_blank" rel="noopener nofollow">쿠팡에서 이 상품 보기</a>';
-    h += '<a class="buy-btn ' + (x ? 'buy-alt' : 'buy-coupang') + '" data-p="coupang" data-q="' + esc(q) + '" href="' + esc(S.searchUrl('coupang', q)) + '" target="_blank" rel="noopener nofollow">' + (x ? '쿠팡에서 다른 상품 비교' : '쿠팡에서 찾기') + '</a>';
+    var btn = function (cls, dq, plain, affUrl, label) {
+      return affUrl
+        ? '<a class="buy-btn ' + cls + ' is-aff" data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(affUrl) + '" target="_blank" rel="sponsored noopener">' + label + '<span class="aff-tag">제휴</span></a>'
+        : '<a class="buy-btn ' + cls + '" data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(plain) + '" target="_blank" rel="noopener nofollow">' + label + '</a>';
+    };
+    var sAff = S.aff[S.affKey('coupang', q)];
+    if (x) h += btn('buy-coupang buy-pick', '@' + q, '', pickUrl(q), '쿠팡에서 이 상품 보기');
+    h += btn(x ? 'buy-alt' : 'buy-coupang', q, S.searchUrl('coupang', q), sAff, x ? '쿠팡에서 다른 상품 비교' : '쿠팡에서 찾기');
     return h + '</div>';
   };
   /* 대표 상품 사진 */
   S.pickImg = function (q, cls) {
     var x = PK[norm(q)]; if (!x || !x.img) return '';
-    var pu = pickUrl(q), dq = pu ? '@' + norm(q) : norm(q), href = pu || S.searchUrl('coupang', q);
-    return '<figure class="pick-img' + (cls ? ' ' + cls : '') + '"><a data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(href) + '" target="_blank" rel="noopener nofollow" tabindex="-1" aria-hidden="true">' +
+    var pu = pickUrl(q), dq = pu ? '@' + norm(q) : norm(q), sa = S.aff[S.affKey('coupang', q)], href = pu || sa || S.searchUrl('coupang', q);
+    return '<figure class="pick-img' + (cls ? ' ' + cls : '') + '"><a data-p="coupang" data-q="' + esc(dq) + '" href="' + esc(href) + '" target="_blank" rel="' + (pu || sa ? 'sponsored noopener' : 'noopener nofollow') + '" tabindex="-1" aria-hidden="true">' +
       '<img src="' + esc(x.img) + '" alt="" width="230" height="230" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></figure>';
   };
   /* 대표 상품 설명 한 줄 */
