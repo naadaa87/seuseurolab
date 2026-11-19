@@ -204,7 +204,7 @@
       }
       if (k === 'share') {
         var data = l.map(function (x) { return [x.name, x.q, x.note || '']; });
-        var url = location.origin + '/mall.html?list=' + encodeURIComponent(JSON.stringify(data));
+        var url = location.origin + '/mall?list=' + encodeURIComponent(JSON.stringify(data));
         S.copy ? S.copy(url, act) : null;
         if (S.track && l.length) S.track('list_share', l.length);
       }

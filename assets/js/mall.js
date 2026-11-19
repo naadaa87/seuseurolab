@@ -145,11 +145,11 @@
     closePop();
     var typed = input.value.trim();
     if (S.track && (typed || o.kind === 'all')) S.track('search', (typed || o.val).slice(0, 40));
-    if (o.kind === 'kit') { location.href = 'kit-' + o.val + '.html'; return; }
+    if (o.kind === 'kit') { location.href = 'kit-' + o.val; return; }
     if (o.kind === 'cat') { input.value = ''; applyShop({ cat: o.val, text: '' }); goTo('products'); return; }
     if (o.kind === 'prod') { var p = byId[o.val]; input.value = shortName(p.name); applyShop({ cat: 'all', text: '', only: p.id }); goTo('products'); return; }
     var r = search(o.val);
-    if (!r.prods.length) { if (S.track) S.track('search_none', String(o.val).slice(0, 40)); location.href = 'catalog.html?q=' + encodeURIComponent(o.val); return; }
+    if (!r.prods.length) { if (S.track) S.track('search_none', String(o.val).slice(0, 40)); location.href = 'catalog?q=' + encodeURIComponent(o.val); return; }
     applyShop({ cat: 'all', text: o.val }); goTo('products');
   }
   var tmr;
@@ -196,11 +196,11 @@
     var names = k.items.map(function (id) { return byId[id] ? shortName(byId[id].name) : ''; }).filter(Boolean);
     var done = kitInKit(k);
     return '<article class="kc" data-group="' + (groupOf[k.slug] || ['base'])[0] + '">' +
-      '<a class="kc-media" href="kit-' + k.slug + '.html" tabindex="-1" aria-hidden="true">' + kitThumbs(k, 4) + '<span class="kc-count">' + k.items.length + '개 구성</span></a>' +
+      '<a class="kc-media" href="kit-' + k.slug + '" tabindex="-1" aria-hidden="true">' + kitThumbs(k, 4) + '<span class="kc-count">' + k.items.length + '개 구성</span></a>' +
       '<div class="kc-body"><div class="kc-top">' + gradeBadge(k) + '<span class="kc-grp">' + esc((groupOf[k.slug] || ['', ''])[1]) + '</span></div>' +
-      '<h3><a href="kit-' + k.slug + '.html">' + esc(k.name) + '</a></h3><p class="kc-short">' + esc(k.short) + '</p>' +
+      '<h3><a href="kit-' + k.slug + '">' + esc(k.name) + '</a></h3><p class="kc-short">' + esc(k.short) + '</p>' +
       '<p class="kc-items"><span class="sr-only">구성: </span>' + esc(names.slice(0, 4).join(', ')) + (names.length > 4 ? ' 외 ' + (names.length - 4) + '개' : '') + '</p>' +
-      '<div class="kc-act"><a class="btn btn-navy btn-sm" href="kit-' + k.slug + '.html">키트 구성 보기</a><button type="button" class="btn btn-outline btn-sm kc-add' + (done ? ' is-done' : '') + '" data-kit-add="' + k.slug + '">' + (done ? '모두 담김' : '구성 전체 담기') + '</button></div></div></article>';
+      '<div class="kc-act"><a class="btn btn-navy btn-sm" href="kit-' + k.slug + '">키트 구성 보기</a><button type="button" class="btn btn-outline btn-sm kc-add' + (done ? ' is-done' : '') + '" data-kit-add="' + k.slug + '">' + (done ? '모두 담김' : '구성 전체 담기') + '</button></div></div></article>';
   }
   var kitGrid = $('#kitGrid'), kitTabs = $('#kitTabs'), kitGroup = 'all';
   kitTabs.innerHTML = '<button type="button" class="chip" data-g="all" aria-pressed="true">전체 <span>' + M.kits.length + '</span></button>' +
@@ -222,8 +222,8 @@
     var PROMO = [['starter', '처음 공구를 장만한다면'], ['restore', '퇴거 전 원상복구라면'], ['open', '오픈을 앞두고 있다면']];
     promo.innerHTML = PROMO.map(function (x) {
       var k = M.kits.filter(function (y) { return y.slug === x[0]; })[0]; if (!k) return '';
-      return '<a class="mp" href="kit-' + k.slug + '.html"><span class="mp-txt"><span class="mp-when">' + esc(x[1]) + '</span><strong>' + esc(k.name) + '</strong><span class="mp-sub">' + esc(k.short) + '</span><span class="mp-go">' + k.items.length + '개 구성 보기</span></span><span class="mp-media" aria-hidden="true">' + kitThumbs(k, 4) + '</span></a>';
-    }).join('') + '<a class="mp mp-diag" href="diagnosis.html"><span class="mp-txt"><span class="mp-when">무엇을 직접 할 수 있을지 모르겠다면</span><strong>7분 무료 진단</strong><span class="mp-sub">공정을 나누고 맞는 키트를 바로 연결합니다</span></span></a>';
+      return '<a class="mp" href="kit-' + k.slug + '"><span class="mp-txt"><span class="mp-when">' + esc(x[1]) + '</span><strong>' + esc(k.name) + '</strong><span class="mp-sub">' + esc(k.short) + '</span><span class="mp-go">' + k.items.length + '개 구성 보기</span></span><span class="mp-media" aria-hidden="true">' + kitThumbs(k, 4) + '</span></a>';
+    }).join('') + '<a class="mp mp-diag" href="diagnosis"><span class="mp-txt"><span class="mp-when">무엇을 직접 할 수 있을지 모르겠다면</span><strong>7분 무료 진단</strong><span class="mp-sub">공정을 나누고 맞는 키트를 바로 연결합니다</span></span></a>';
   }
 
   /* 키트 구성 전체 담기 */
@@ -276,10 +276,10 @@
     } else {
       track.innerHTML = popKits().map(function (k, i) {
         return '<li class="pc pc-kit"><span class="pc-rank' + (i < 3 ? ' is-top' : '') + '">' + (i + 1) + '</span>' +
-          '<a class="pc-media kc-mini" href="kit-' + k.slug + '.html" tabindex="-1" aria-hidden="true">' + kitThumbs(k, 4) + '</a>' +
-          '<div class="pc-cat">' + esc((groupOf[k.slug] || ['', '공구'])[1]) + ' · ' + k.items.length + '개 구성</div><h3 class="pc-nm"><a href="kit-' + k.slug + '.html">' + esc(k.name) + '</a></h3>' +
+          '<a class="pc-media kc-mini" href="kit-' + k.slug + '" tabindex="-1" aria-hidden="true">' + kitThumbs(k, 4) + '</a>' +
+          '<div class="pc-cat">' + esc((groupOf[k.slug] || ['', '공구'])[1]) + ' · ' + k.items.length + '개 구성</div><h3 class="pc-nm"><a href="kit-' + k.slug + '">' + esc(k.name) + '</a></h3>' +
           '<p class="pc-pick">' + esc(k.short) + '</p>' +
-          '<div class="pc-act"><a class="pc-buy pc-buy-kit" href="kit-' + k.slug + '.html">키트 구성 보기</a></div></li>';
+          '<div class="pc-act"><a class="pc-buy pc-buy-kit" href="kit-' + k.slug + '">키트 구성 보기</a></div></li>';
       }).join('');
     }
     track.scrollLeft = 0; navState();
@@ -319,7 +319,7 @@
     var x = pick(p), kits = (kitOf[p.id] || []);
     var more = '<dl>' + (p.spec ? '<dt>규격</dt><dd>' + esc(p.spec) + '</dd>' : '') + '<dt>쓰는 곳</dt><dd>' + esc(p.use) + '</dd>' +
       (p.brand ? '<dt>추천</dt><dd>' + esc(p.brand) + '</dd>' : '') + (p.tip ? '<dt>고르는 법</dt><dd>' + esc(p.tip) + '</dd>' : '') +
-      (kits.length ? '<dt>들어 있는 키트</dt><dd>' + kits.map(function (k) { return '<a href="kit-' + k.slug + '.html">' + esc(k.name) + '</a>'; }).join(', ') + '</dd>' : '') + '</dl>';
+      (kits.length ? '<dt>들어 있는 키트</dt><dd>' + kits.map(function (k) { return '<a href="kit-' + k.slug + '">' + esc(k.name) + '</a>'; }).join(', ') + '</dd>' : '') + '</dl>';
     return '<article class="prod sc" data-pid="' + p.id + '">' +
       (S.pickImg(p.q, 'prod-img') || '<div class="pick-img prod-img is-empty" aria-hidden="true">' + icon(p.cat) + '</div>') +
       '<div class="sc-body"><div class="sc-cat">' + esc(catLabel[p.cat]) + (p.sub ? ' · ' + esc(p.sub.replace('공구 · ', '')) : '') + '</div>' +
@@ -350,13 +350,13 @@
       var rk = st.text ? search(st.text).kits.slice(0, 4) : (kitOf[st.only] || []).slice(0, 4);
       stateBox.hidden = false;
       stateBox.innerHTML = '<div class="ss-row"><span>' + (st.only ? '검색창에서 고른 상품만 보고 있습니다.' : '‘' + esc(st.text) + '’와 맞는 상품 ' + arr.length + '개') + '</span><button type="button" class="ss-clear" data-clear>검색 지우고 전체 보기</button></div>' +
-        (rk.length ? '<div class="ss-kits"><span>' + (st.only ? '이 상품이 들어 있는 키트' : '함께 보면 좋은 키트') + '</span>' + rk.map(function (k) { return '<a href="kit-' + k.slug + '.html">' + esc(k.name) + ' <small>' + k.items.length + '개 구성</small></a>'; }).join('') + '</div>' : '');
+        (rk.length ? '<div class="ss-kits"><span>' + (st.only ? '이 상품이 들어 있는 키트' : '함께 보면 좋은 키트') + '</span>' + rk.map(function (k) { return '<a href="kit-' + k.slug + '">' + esc(k.name) + ' <small>' + k.items.length + '개 구성</small></a>'; }).join('') + '</div>' : '');
     } else { stateBox.hidden = true; stateBox.innerHTML = ''; }
     var more = $('#mallMore');
     more.hidden = arr.length <= st.shown;
     more.querySelector('button').textContent = '더 보기 (' + Math.min(PAGE, arr.length - st.shown) + '개 / 남은 ' + Math.max(0, arr.length - st.shown) + '개)';
     grid.innerHTML = arr.length ? arr.slice(0, st.shown).map(card).join('') :
-      '<div class="shop-empty"><p>‘' + esc(st.text) + '’와 맞는 상품이 스스로몰에 없습니다.</p><p>검색어를 짧게 줄이거나, 315개 공정을 정리한 <a href="catalog.html?q=' + encodeURIComponent(st.text) + '">셀프시공 총정리</a>에서 찾아보세요.</p></div>';
+      '<div class="shop-empty"><p>‘' + esc(st.text) + '’와 맞는 상품이 스스로몰에 없습니다.</p><p>검색어를 짧게 줄이거나, 315개 공정을 정리한 <a href="catalog?q=' + encodeURIComponent(st.text) + '">셀프시공 총정리</a>에서 찾아보세요.</p></div>';
     var u = new URL(location.href);
     if (st.cat === 'all') u.searchParams.delete('cat'); else u.searchParams.set('cat', st.cat);
     if (st.text) u.searchParams.set('q', st.text); else u.searchParams.delete('q');

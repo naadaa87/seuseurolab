@@ -133,7 +133,7 @@
       html += '<h3 class="grp-title">' + esc(tp) + '</h3><div class="store-grid">';
       items.forEach(function (s) {
         /* 외부 구매처로 가는 링크는 두지 않습니다. 쿠팡은 스스로몰(쿠팡 제휴 링크)로 연결합니다. */
-        if (/쿠팡/.test(s.name)) html += '<a class="store" href="mall.html"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div><div class="go">스스로몰에서 쿠팡 상품 보기</div></a>';
+        if (/쿠팡/.test(s.name)) html += '<a class="store" href="mall"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div><div class="go">스스로몰에서 쿠팡 상품 보기</div></a>';
         else html += '<div class="store is-info"><div class="nm">' + esc(s.name) + '</div><div class="st">' + esc(s.strength) + '</div><div class="it">' + esc(s.items) + '</div></div>';
       });
       html += '</div>';
@@ -257,7 +257,7 @@
     var n = parseInt(featRoot.getAttribute('data-n') || '8', 10);
     var items = S.lib.featured.filter(function (f) { return f.apply !== '주거 위주'; }).slice(0, n);
     featRoot.innerHTML = items.map(function (f) {
-      return '<a class="feat" href="catalog.html?q=' + encodeURIComponent(f.name.split('(')[0].trim()) + '"><div class="cat">' + esc(f.cat) + ' · ' + gbadge(f.grade) + '</div><div class="nm">' + esc(f.name) + '</div><div class="pr">' + esc(f.price) + '</div></a>';
+      return '<a class="feat" href="catalog?q=' + encodeURIComponent(f.name.split('(')[0].trim()) + '"><div class="cat">' + esc(f.cat) + ' · ' + gbadge(f.grade) + '</div><div class="nm">' + esc(f.name) + '</div><div class="pr">' + esc(f.price) + '</div></a>';
     }).join('');
   }
 })();
